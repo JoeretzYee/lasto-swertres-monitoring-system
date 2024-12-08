@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   db,
+  doc,
+  getAuth,
   setDoc,
   signInWithEmailAndPassword,
-  doc,
 } from "../firebase";
 
 function SignupUser({ userData }) {
@@ -76,7 +76,7 @@ function SignupUser({ userData }) {
   return (
     <div className="container d-flex flex-column align-items-center justify-content-center mt-5">
       <h2 className="text-center mb-4">Create User</h2>
-      <form onSubmit={handleSubmit} className="w-50 mx-auto">
+      <form onSubmit={handleSubmit} className="w-100 mx-auto">
         {/* Username Field */}
         <div className="mb-3">
           <label htmlFor="username" className="form-label">

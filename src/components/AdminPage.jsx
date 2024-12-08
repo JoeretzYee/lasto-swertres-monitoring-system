@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from "react";
-import {
-  onAuthStateChanged,
-  getAuth,
-  db,
-  signOut,
-  collection,
-  getDocs,
-  doc,
-  getDoc,
-} from "../firebase";
-import { Link } from "react-router-dom";
-import Table from "./Table";
-import SignupUser from "./SignupUser";
+import { collection, db, getAuth, getDocs, signOut } from "../firebase";
 import BetDetails from "./BetDetails";
+import SignupUser from "./SignupUser";
 
 function AdminPage({ user }) {
   //states
   const [betsData, setBetsdata] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     const fetchBets = async () => {
       setLoading(true);
@@ -59,17 +50,65 @@ function AdminPage({ user }) {
       {/* container up */}
       <div className="container-fluid d-flex align-items-center justify-content-between">
         <small>{user.email}</small>
-        <button className="btn btn-small btn-primary" onClick={logout}>
-          logout
-        </button>
+        <div className="">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn btn-md btn-warning"
+          >
+            Create User
+          </button>{" "}
+          &nbsp;
+          <button className="btn btn-md btn-danger" onClick={logout}>
+            logout
+          </button>
+        </div>
       </div>
       <br />
       {/* table for all stations data */}
       <BetDetails />
 
       <br />
-      {/* forms for signing up user */}
-      <SignupUser />
+
+      {/* Signup User Modal */}
+      {isModalOpen && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          role="dialog"
+          aria-labelledby="createUserModalLabel"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="createUserModalLabel">
+                  Create User
+                </h5>
+                <button
+                  type="button"
+                  className="close btn-sm btn-danger"
+                  onClick={() => setIsModalOpen(false)}
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <SignupUser />
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
