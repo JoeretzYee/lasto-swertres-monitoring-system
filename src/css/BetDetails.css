@@ -1,0 +1,41 @@
+.betDetails_table {
+  border-collapse: collapse;
+  width: 100%; /* Ensures the table takes the full width */
+  table-layout: fixed; /* Prevents column misalignment */
+}
+
+.betDetails_table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa; /* Matches Bootstrap's header background */
+  z-index: 2;
+  text-align: left;
+}
+
+.betDetails_table tbody {
+  display: block;
+  max-height: 40vh; /* Adjust the height as needed */
+  overflow-y: auto;
+}
+
+.betDetails_table thead,
+.betDetails_table tbody tr {
+  display: table;
+  table-layout: fixed;
+  font-weight: bolder;
+  width: 100%; /* Ensure consistent width across the table */
+}
+
+.betDetails_table th,
+.betDetails_table td {
+  padding: 8px; /* Matches Bootstrap padding */
+  /* border: 1px solid #dee2e6; Matches Bootstrap's borders */
+  text-align: left; /* Aligns text consistently */
+  word-wrap: break-word; /* Ensures content wraps inside cells */
+}
+
+.betDetails_table tfoot {
+  display: table;
+  width: 100%; /* Ensure the footer spans the entire table */
+  table-layout: fixed; /* Maintain consistent alignment */
+}

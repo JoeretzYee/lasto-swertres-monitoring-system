@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { collection, db, getAuth, getDocs, signOut } from "../firebase";
 import BetDetails from "./BetDetails";
 import SignupUser from "./SignupUser";
+import DeleteUser from "./DeleteUser";
 
 function AdminPage({ user }) {
   //states
@@ -9,6 +10,25 @@ function AdminPage({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State to control delete user modal
+  const [users, setUsers] = useState([]);
+
+  // Fetching the users to show in the delete dropdown
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        const fetchedUsers = usersSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setUsers(fetchedUsers);
+      } catch (err) {
+        console.error("Error fetching users:", err);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     const fetchBets = async () => {
@@ -53,12 +73,19 @@ function AdminPage({ user }) {
         <div className="">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="btn btn-md btn-warning"
+            className="btn btn-md btn-warning "
           >
             Create User
           </button>{" "}
           &nbsp;
-          <button className="btn btn-md btn-danger" onClick={logout}>
+          <button
+            onClick={() => setIsDeleteModalOpen(true)}
+            className="btn btn-md btn-danger"
+          >
+            Delete User
+          </button>
+          &nbsp;
+          <button className="btn btn-md btn-dark" onClick={logout}>
             logout
           </button>
         </div>
@@ -101,6 +128,46 @@ function AdminPage({ user }) {
                   type="button"
                   className="btn btn-secondary"
                   onClick={() => setIsModalOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Delete User Modal */}
+      {isDeleteModalOpen && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          role="dialog"
+          aria-labelledby="deleteUserModalLabel"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="deleteUs-/erModalLabel">
+                  Delete User
+                </h5>
+                <button
+                  type="button"
+                  className="close btn-sm btn-danger"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <DeleteUser users={users} />
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setIsDeleteModalOpen(false)}
                 >
                   Close
                 </button>

@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut,
+  deleteUser,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -13,6 +14,7 @@ import {
   getDocs,
   getDoc,
   setDoc,
+  writeBatch,
   doc,
   deleteDoc,
   updateDoc,
@@ -44,6 +46,8 @@ export {
   doc,
   deleteDoc,
   setDoc,
+  writeBatch,
+  deleteUser,
   where,
   updateDoc,
   onAuthStateChanged,
