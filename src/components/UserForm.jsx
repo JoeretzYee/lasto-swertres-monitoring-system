@@ -1,22 +1,21 @@
-import React, { useState } from "react";
-import { db, collection, addDoc } from "../firebase";
+import React, { useEffect, useState } from "react";
+import { addDoc, collection, db } from "../firebase";
 
 const UserForm = ({ userData }) => {
   // States
-
-  console.log("user dataaaa: ", userData.email);
   const [referenceNo, setReferenceNo] = useState("");
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
-    return today.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+    return today.toISOString().split("T")[0];
   });
   const [selectedTime, setSelectedTime] = useState("2pm"); // Default time
-  const [bets, setBets] = useState([]); // Bets array
-  const [game, setGame] = useState("lasto"); // Default game type
+  const [bets, setBets] = useState([]);
+  const [game, setGame] = useState("lasto");
   const [number, setNumber] = useState("");
   const [amount, setAmount] = useState("");
-  const [loading, setLoading] = useState(false); // Submission state
-  const [message, setMessage] = useState(""); // Feedback message
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [disabledTimes, setDisabledTimes] = useState([]);
 
   // Handlers
   const handleReferenceNoChange = (e) => setReferenceNo(e.target.value);
@@ -66,7 +65,6 @@ const UserForm = ({ userData }) => {
     };
 
     try {
-      // Add to Firebase
       await addDoc(collection(db, "bets"), betData);
       setMessage("Bet successfully submitted!");
       setReferenceNo("");
@@ -80,6 +78,30 @@ const UserForm = ({ userData }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const updateDisabledTimes = () => {
+      const now = new Date();
+      const cutoffTimes = {
+        "2pm": new Date(),
+        "5pm": new Date(),
+        "9pm": new Date(),
+      };
+
+      cutoffTimes["2pm"].setHours(13, 45); // 1:45 PM
+      cutoffTimes["5pm"].setHours(16, 45); // 4:45 PM
+      cutoffTimes["9pm"].setHours(20, 45); // 8:45 PM
+
+      const newDisabledTimes = Object.entries(cutoffTimes)
+        .filter(([_, cutoffTime]) => now >= cutoffTime)
+        .map(([time]) => time);
+
+      setDisabledTimes(newDisabledTimes);
+    };
+
+    const interval = setInterval(updateDisabledTimes, 1000); // Update every second
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="container mt-4">
@@ -119,9 +141,15 @@ const UserForm = ({ userData }) => {
               value={selectedTime}
               onChange={handleTimeChange}
             >
-              <option value="2pm">2 PM</option>
-              <option value="5pm">5 PM</option>
-              <option value="9pm">9 PM</option>
+              <option value="2pm" disabled={disabledTimes.includes("2pm")}>
+                2 PM
+              </option>
+              <option value="5pm" disabled={disabledTimes.includes("5pm")}>
+                5 PM
+              </option>
+              <option value="9pm" disabled={disabledTimes.includes("9pm")}>
+                9 PM
+              </option>
             </select>
           </div>
         </div>
@@ -161,7 +189,7 @@ const UserForm = ({ userData }) => {
           </div>
           <button
             type="button"
-            className="btn btn-success mt-3"
+            className="btn btn-primary mt-3"
             onClick={handleAddBet}
           >
             Add Bet
@@ -207,7 +235,7 @@ const UserForm = ({ userData }) => {
           )}
         </div>
 
-        <button type="submit" className="btn btn-primary" disabled={loading}>
+        <button type="submit" className="btn btn-success" disabled={loading}>
           {loading ? "Submitting..." : "Submit"}
         </button>
         {message && <p className="mt-3">{message}</p>}
