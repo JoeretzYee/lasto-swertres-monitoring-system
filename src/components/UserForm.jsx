@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { addDoc, collection, db } from "../firebase";
 
+const generateUniqueReferenceNo = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 const UserForm = ({ userData }) => {
   // States
   const [referenceNo, setReferenceNo] = useState("");
@@ -8,7 +12,24 @@ const UserForm = ({ userData }) => {
     const today = new Date();
     return today.toISOString().split("T")[0];
   });
-  const [selectedTime, setSelectedTime] = useState("2pm"); // Default time
+  const [selectedTime, setSelectedTime] = useState(() => {
+    const now = new Date();
+    const cutoffTimes = {
+      "2pm": new Date(now.getFullYear(), now.getMonth(), now.getDate(), 13, 45),
+      "5pm": new Date(now.getFullYear(), now.getMonth(), now.getDate(), 16, 45),
+      "9pm": new Date(now.getFullYear(), now.getMonth(), now.getDate(), 20, 45),
+    };
+
+    if (now >= cutoffTimes["9pm"]) {
+      return "2pm"; // Next day cycle starts with 2 PM
+    } else if (now >= cutoffTimes["5pm"]) {
+      return "9pm";
+    } else if (now >= cutoffTimes["2pm"]) {
+      return "5pm";
+    } else {
+      return "2pm"; // Before 1:45 PM, default is 2 PM
+    }
+  });
   const [bets, setBets] = useState([]);
   const [game, setGame] = useState("lasto");
   const [number, setNumber] = useState("");
@@ -71,6 +92,9 @@ const UserForm = ({ userData }) => {
       setSelectedDate(new Date().toISOString().split("T")[0]);
       setSelectedTime("2pm");
       setBets([]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error("Error adding document: ", error);
       setMessage("Error submitting the bet. Please try again.");
@@ -80,28 +104,58 @@ const UserForm = ({ userData }) => {
   };
 
   useEffect(() => {
+    // Generate and set a unique reference number when the component loads
+    setReferenceNo(generateUniqueReferenceNo());
+  }, []);
+
+  useEffect(() => {
     const updateDisabledTimes = () => {
       const now = new Date();
       const cutoffTimes = {
-        "2pm": new Date(),
-        "5pm": new Date(),
-        "9pm": new Date(),
+        "2pm": new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          13,
+          45
+        ),
+        "5pm": new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          16,
+          45
+        ),
+        "9pm": new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          20,
+          45
+        ),
       };
-
-      cutoffTimes["2pm"].setHours(13, 45); // 1:45 PM
-      cutoffTimes["5pm"].setHours(16, 45); // 4:45 PM
-      cutoffTimes["9pm"].setHours(20, 45); // 8:45 PM
 
       const newDisabledTimes = Object.entries(cutoffTimes)
         .filter(([_, cutoffTime]) => now >= cutoffTime)
         .map(([time]) => time);
 
       setDisabledTimes(newDisabledTimes);
+
+      // Adjust selectedTime if it becomes invalid
+      if (newDisabledTimes.includes(selectedTime)) {
+        if (!newDisabledTimes.includes("5pm")) {
+          setSelectedTime("5pm");
+        } else if (!newDisabledTimes.includes("9pm")) {
+          setSelectedTime("9pm");
+        } else {
+          setSelectedTime("2pm"); // Default to next day's 2 PM
+        }
+      }
     };
 
     const interval = setInterval(updateDisabledTimes, 1000); // Update every second
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedTime]);
 
   return (
     <div className="container mt-4">

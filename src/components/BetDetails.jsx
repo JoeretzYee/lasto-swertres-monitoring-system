@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { collection, db, getDocs } from "../firebase"; // Adjust to your Firebase config file
 import "../css/BetDetails.css";
+import * as XLSX from "xlsx"; // Import xlsx library
 
 const BetDetails = () => {
   const [users, setUsers] = useState([]);
@@ -87,6 +88,78 @@ const BetDetails = () => {
     setEndDate(e.target.value);
   };
 
+  const calculateTimeTotals = (bets) => {
+    const timeTotals = {
+      "2pm": 0,
+      "5pm": 0,
+      "9pm": 0,
+    };
+
+    bets.forEach((bet) => {
+      const betTime = bet.drawDate.time;
+      if (betTime === "14:00" || betTime === "2pm") {
+        timeTotals["2pm"] += bet.total?.amount || 0;
+      } else if (betTime === "17:00" || betTime === "5pm") {
+        timeTotals["5pm"] += bet.total?.amount || 0;
+      } else if (betTime === "21:00" || betTime === "9pm") {
+        timeTotals["9pm"] += bet.total?.amount || 0;
+      }
+    });
+
+    return timeTotals;
+  };
+  // generate Report
+  const handleGenerateReport = () => {
+    const activeBets = betsByStation[activeStation].bets;
+    const timeTotals = calculateTimeTotals(activeBets);
+
+    // Prepare the data in the required format
+    const formattedData = activeBets.map((bet) => {
+      const betTime = bet.drawDate.time;
+      return {
+        referenceNo: bet.referenceNo,
+        drawDate: bet.drawDate.date,
+        drawTime: bet.drawDate.time,
+        bets: bet.bets
+          .map((b) => `${b.game}: ${b.number} - ₱${formatCurrency(b.amount)}`)
+          .join(", "),
+        "2pm Total":
+          betTime === "14:00" || betTime === "2pm"
+            ? "₱" + formatCurrency(bet.total?.amount)
+            : "-",
+        "5pm Total":
+          betTime === "17:00" || betTime === "5pm"
+            ? "₱" + formatCurrency(bet.total?.amount)
+            : "-",
+        "9pm Total":
+          betTime === "21:00" || betTime === "9pm"
+            ? "₱" + formatCurrency(bet.total?.amount)
+            : "-",
+      };
+    });
+
+    // Add totals row
+    const totalRow = {
+      referenceNo: "Total",
+      drawDate: "",
+      drawTime: "",
+      bets: "",
+      "2pm Total": "₱" + formatCurrency(timeTotals["2pm"]),
+      "5pm Total": "₱" + formatCurrency(timeTotals["5pm"]),
+      "9pm Total": "₱" + formatCurrency(timeTotals["9pm"]),
+    };
+
+    formattedData.push(totalRow);
+
+    // Convert to worksheet
+    const ws = XLSX.utils.json_to_sheet(formattedData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Bets Report");
+
+    // Generate and download the Excel file
+    XLSX.writeFile(wb, `${activeStation}_Bets_Report.xlsx`);
+  };
+
   if (loading) return <p>Loading bets...</p>;
   if (error) return <p>{error}</p>;
 
@@ -136,6 +209,7 @@ const BetDetails = () => {
       {/* Tab Content */}
       <div className="tab-content mt-3" id="stationTabsContent">
         {Object.entries(betsByStation).map(([station, data]) => {
+          const timeTotals = calculateTimeTotals(data.bets);
           const totalAmount = data.bets.reduce(
             (sum, bet) => sum + (bet.total?.amount || 0),
             0
@@ -148,9 +222,19 @@ const BetDetails = () => {
               }`}
               key={station}
             >
-              <h4>
-                {station} - {data.users.map((user) => user.email).join(", ")}
-              </h4>
+              <div className=" d-flex align-items-center justify-content-between bg-red w-100 p-2">
+                <h4>
+                  {station} - {data.users.map((user) => user.email).join(", ")}
+                </h4>
+
+                <button
+                  onClick={handleGenerateReport}
+                  className="btn btn-sm btn-success"
+                >
+                  Generate Report
+                </button>
+              </div>
+
               {data.bets.length > 0 ? (
                 <table className="table table-bordered betDetails_table">
                   <thead className="betDetails_thead">
@@ -159,7 +243,9 @@ const BetDetails = () => {
                       <th>Draw Date</th>
                       <th>Draw Time</th>
                       <th>Bets</th>
-                      <th>Total Amount</th>
+                      <th>2 PM Total</th>
+                      <th>5 PM Total</th>
+                      <th>9 PM Total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -178,22 +264,39 @@ const BetDetails = () => {
                         ).getTime();
                         return timeA - timeB;
                       })
-                      .map((bet) => (
-                        <tr key={bet.id}>
-                          <td>{bet.referenceNo}</td>
-                          <td>{bet.drawDate.date}</td>
-                          <td>{bet.drawDate.time}</td>
-                          <td>
-                            {bet.bets.map((b, idx) => (
-                              <div key={idx}>
-                                {b.game}: {b.number} - ₱
-                                {formatCurrency(b.amount)}
-                              </div>
-                            ))}
-                          </td>
-                          <td>₱{formatCurrency(bet.total?.amount)}</td>
-                        </tr>
-                      ))}
+                      .map((bet) => {
+                        const betTime = bet.drawDate.time;
+                        return (
+                          <tr key={bet.id}>
+                            <td>{bet.referenceNo}</td>
+                            <td>{bet.drawDate.date}</td>
+                            <td>{bet.drawDate.time}</td>
+                            <td>
+                              {bet.bets.map((b, idx) => (
+                                <div key={idx}>
+                                  {b.game}: {b.number} - ₱
+                                  {formatCurrency(b.amount)}
+                                </div>
+                              ))}
+                            </td>
+                            <td>
+                              {betTime === "14:00" || betTime === "2pm"
+                                ? "₱" + formatCurrency(bet.total?.amount)
+                                : "-"}
+                            </td>
+                            <td>
+                              {betTime === "17:00" || betTime === "5pm"
+                                ? "₱" + formatCurrency(bet.total?.amount)
+                                : "-"}
+                            </td>
+                            <td>
+                              {betTime === "21:00" || betTime === "9pm"
+                                ? "₱" + formatCurrency(bet.total?.amount)
+                                : "-"}
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
 
                   <tfoot>
@@ -202,7 +305,13 @@ const BetDetails = () => {
                         Total
                       </td>
                       <td className="fw-bold">
-                        ₱{formatCurrency(totalAmount)}
+                        ₱{formatCurrency(timeTotals["2pm"])}
+                      </td>
+                      <td className="fw-bold">
+                        ₱{formatCurrency(timeTotals["5pm"])}
+                      </td>
+                      <td className="fw-bold">
+                        ₱{formatCurrency(timeTotals["9pm"])}
                       </td>
                     </tr>
                   </tfoot>
