@@ -71,6 +71,12 @@ function SignupUser({ userData }) {
       navigate("/admin");
     } catch (error) {
       console.error("Signup Error: ", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Try another Email",
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
     }
   };
   return (

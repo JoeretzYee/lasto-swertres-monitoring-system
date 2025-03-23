@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { addDoc, collection, db } from "../firebase";
+import { addDoc, collection, db, onSnapshot } from "../firebase";
+import Swal from "sweetalert2";
 
 const generateUniqueReferenceNo = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -33,23 +34,121 @@ const UserForm = ({ userData }) => {
   const [bets, setBets] = useState([]);
   const [game, setGame] = useState("lasto");
   const [number, setNumber] = useState("");
+  const [additionalNumbers, setAdditionalNumbers] = useState([
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]); // For Pick 3
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [disabledTimes, setDisabledTimes] = useState([]);
+  const [loadControlData, setLoadControlData] = useState(null); // To store loadControl data
+
+  // Fetch loadControl data in real-time using onSnapshot
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, "loadControl"),
+      (querySnapshot) => {
+        if (!querySnapshot.empty) {
+          const docData = querySnapshot.docs[0].data();
+          setLoadControlData(docData);
+        } else {
+          setLoadControlData(null); // Reset if the collection is empty
+        }
+      }
+    );
+
+    // Clean up the listener when the component unmounts
+    return () => unsubscribe();
+  }, []);
 
   // Handlers
   const handleReferenceNoChange = (e) => setReferenceNo(e.target.value);
   const handleDateChange = (e) => setSelectedDate(e.target.value);
   const handleTimeChange = (e) => setSelectedTime(e.target.value);
-  const handleGameChange = (e) => setGame(e.target.value);
+  const handleGameChange = (e) => {
+    setGame(e.target.value);
+    setNumber(""); // Reset number field when game changes
+    setAdditionalNumbers(["", "", "", "", ""]); // Reset additional numbers
+  };
   const handleNumberChange = (e) => setNumber(e.target.value);
+  const handleAdditionalNumberChange = (index, value) => {
+    const newAdditionalNumbers = [...additionalNumbers];
+    newAdditionalNumbers[index] = value;
+    setAdditionalNumbers(newAdditionalNumbers);
+  };
   const handleAmountChange = (e) => setAmount(e.target.value);
 
   const handleAddBet = () => {
-    if (game && number && amount) {
-      setBets([...bets, { game, number, amount: parseFloat(amount) }]);
+    if (game && amount) {
+      // Validate number length based on game
+      if (game === "lasto" && number.length !== 2) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Number",
+          text: "Lasto (L2) requires a 2-digit number.",
+        });
+        return;
+      } else if (game === "swertres" && number.length !== 3) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Number",
+          text: "Swertres (S3) requires a 3-digit number.",
+        });
+        return;
+      } else if (game === "pick3") {
+        // Validate all 6 numbers for Pick 3
+        const allNumbers = [number, ...additionalNumbers];
+        if (allNumbers.some((num) => num.length !== 3)) {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid Number",
+            text: "Pick 3 requires 6 numbers, each with 3 digits.",
+          });
+          return;
+        }
+      }
+
+      // Check if the number is controlled
+      const isControlledNumber =
+        loadControlData?.controlNumber?.numbers?.includes(parseInt(number));
+
+      // Validate the bet amount based on whether the number is controlled
+      if (isControlledNumber) {
+        const maxBetAmount = loadControlData.controlNumber.controlLoad; // Max bet is controlLoad
+        if (parseFloat(amount) > maxBetAmount) {
+          Swal.fire({
+            icon: "error",
+            title: "Bet Limit Exceeded",
+            text: `The maximum bet for controlled number ${number} is ${maxBetAmount}.`,
+          });
+          return;
+        }
+      } else {
+        // For non-controlled numbers, check against the load value
+        if (parseFloat(amount) > loadControlData?.load) {
+          Swal.fire({
+            icon: "error",
+            title: "Bet Limit Exceeded",
+            text: `The maximum bet for any number is ${loadControlData?.load}.`,
+          });
+          return;
+        }
+      }
+
+      // Add the bet
+      const bet = {
+        game,
+        number:
+          game === "pick3" ? [number, ...additionalNumbers].join(", ") : number,
+        amount: parseFloat(amount),
+      };
+      setBets([...bets, bet]);
       setNumber("");
+      setAdditionalNumbers(["", "", "", "", ""]);
       setAmount("");
     }
   };
@@ -220,6 +319,7 @@ const UserForm = ({ userData }) => {
               >
                 <option value="lasto">Lasto (L2)</option>
                 <option value="swertres">Swertres (S3)</option>
+                <option value="pick3">Pick 3</option>
               </select>
             </div>
             <div className="col-md-4">
@@ -230,6 +330,22 @@ const UserForm = ({ userData }) => {
                 value={number}
                 onChange={handleNumberChange}
               />
+              {game === "pick3" && (
+                <>
+                  {additionalNumbers.map((num, index) => (
+                    <input
+                      key={index}
+                      type="text"
+                      className="form-control mt-2"
+                      placeholder={`Number ${index + 2}`}
+                      value={num}
+                      onChange={(e) =>
+                        handleAdditionalNumberChange(index, e.target.value)
+                      }
+                    />
+                  ))}
+                </>
+              )}
             </div>
             <div className="col-md-4">
               <input
@@ -268,7 +384,11 @@ const UserForm = ({ userData }) => {
                   <tr key={index}>
                     <td>{index + 1}</td>
                     <td>
-                      {bet.game === "lasto" ? "Lasto (L2)" : "Swertres (S3)"}
+                      {bet.game === "lasto"
+                        ? "Lasto (L2)"
+                        : bet.game === "swertres"
+                        ? "Swertres (S3)"
+                        : "Pick 3"}
                     </td>
                     <td>{bet.number}</td>
                     <td>{bet.amount.toFixed(2)}</td>

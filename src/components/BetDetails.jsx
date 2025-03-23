@@ -108,6 +108,30 @@ const BetDetails = () => {
 
     return timeTotals;
   };
+
+  // Function to calculate totals for "lasto" and "swertres"
+  const calculateGameTotals = (bets) => {
+    const gameTotals = {
+      lasto: 0,
+      swertres: 0,
+      pick3: 0,
+    };
+
+    bets.forEach((bet) => {
+      bet.bets.forEach((b) => {
+        if (b.game === "lasto") {
+          gameTotals.lasto += b.amount || 0;
+        } else if (b.game === "swertres") {
+          gameTotals.swertres += b.amount || 0;
+        } else if (b.game === "pick3") {
+          gameTotals.pick3 += b.amount || 0;
+        }
+      });
+    });
+
+    return gameTotals;
+  };
+
   // generate Report
   const handleGenerateReport = () => {
     const activeBets = betsByStation[activeStation].bets;
@@ -210,6 +234,7 @@ const BetDetails = () => {
       <div className="tab-content mt-3" id="stationTabsContent">
         {Object.entries(betsByStation).map(([station, data]) => {
           const timeTotals = calculateTimeTotals(data.bets);
+          const gameTotals = calculateGameTotals(data.bets);
           const totalAmount = data.bets.reduce(
             (sum, bet) => sum + (bet.total?.amount || 0),
             0
@@ -312,6 +337,30 @@ const BetDetails = () => {
                       </td>
                       <td className="fw-bold">
                         ₱{formatCurrency(timeTotals["9pm"])}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan="4" className="text-end fw-bold">
+                        Lasto Total
+                      </td>
+                      <td colSpan="3" className="fw-bold">
+                        ₱{formatCurrency(gameTotals.lasto)}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan="4" className="text-end fw-bold">
+                        Swertres Total
+                      </td>
+                      <td colSpan="3" className="fw-bold">
+                        ₱{formatCurrency(gameTotals.swertres)}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan="4" className="text-end fw-bold">
+                        Pick 3 Total
+                      </td>
+                      <td colSpan="3" className="fw-bold">
+                        ₱{formatCurrency(gameTotals.pick3)}
                       </td>
                     </tr>
                   </tfoot>

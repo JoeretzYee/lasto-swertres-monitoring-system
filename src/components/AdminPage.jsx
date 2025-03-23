@@ -3,6 +3,8 @@ import { collection, db, getAuth, getDocs, signOut } from "../firebase";
 import BetDetails from "./BetDetails";
 import SignupUser from "./SignupUser";
 import DeleteUser from "./DeleteUser";
+import AddResultModal from "../modals/AddResultModal";
+import AddLoadModal from "../modals/AddLoadModal";
 
 function AdminPage({ user }) {
   //states
@@ -11,6 +13,8 @@ function AdminPage({ user }) {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State to control delete user modal
+  const [isAddResultModalOpen, setIsAddResultModalOpen] = useState(false);
+  const [isAddLoadModalOpen, setIsAddLoadModalOpen] = useState(false);
   const [users, setUsers] = useState([]);
 
   // Fetching the users to show in the delete dropdown
@@ -65,12 +69,59 @@ function AdminPage({ user }) {
         console.error("Error logging out:", error);
       });
   };
+  const handleOpenAddResultModal = () => {
+    setIsAddResultModalOpen(true);
+  };
+  const handleOpenAddLoadModal = () => {
+    setIsAddLoadModalOpen(true);
+  };
+
+  const handleCloseAddResultModal = () => {
+    setIsAddResultModalOpen(false);
+  };
+  const handleCloseAddLoadModal = () => {
+    setIsAddLoadModalOpen(false);
+  };
+  const handleSaveResults = (results) => {
+    // Handle saving the results (e.g., send to Firebase or update state)
+    console.log("Saved Results:");
+    // You can add your logic here to save the results
+  };
   return (
     <div className="container-fluid d-flex flex-column align-items-start justify-content-start py-3  text-black">
       {/* container up */}
-      <div className="container-fluid d-flex align-items-center justify-content-between">
+      <div className="container-fluid d-flex align-items-center justify-content-between flex-wrap">
         <small>{user.email}</small>
         <div className="">
+          <button
+            className="btn btn-md btn-primary "
+            onClick={handleOpenAddResultModal}
+          >
+            Add Result for Today
+          </button>{" "}
+          {/* Render the modal */}
+          {isAddResultModalOpen && (
+            <AddResultModal
+              isOpen={handleOpenAddResultModal}
+              onClose={handleCloseAddResultModal}
+              onSave={handleSaveResults}
+            />
+          )}
+          &nbsp;
+          <button
+            className="btn btn-md btn-primary"
+            onClick={handleOpenAddLoadModal}
+          >
+            Add Load
+          </button>{" "}
+          &nbsp;
+          {isAddLoadModalOpen && (
+            <AddLoadModal
+              isOpen={handleOpenAddLoadModal}
+              onClose={handleCloseAddLoadModal}
+              onSave={handleSaveResults}
+            />
+          )}
           <button
             onClick={() => setIsModalOpen(true)}
             className="btn btn-md btn-warning "
@@ -85,7 +136,7 @@ function AdminPage({ user }) {
             Delete User
           </button>
           &nbsp;
-          <button className="btn btn-md btn-dark" onClick={logout}>
+          <button className="btn btn-md btn-dark mt-2 mt-sm-0" onClick={logout}>
             logout
           </button>
         </div>
