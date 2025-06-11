@@ -144,46 +144,108 @@ function UserPage({ user, userData }) {
         </div>
       </div>
       <br />
+
       {/* container middle */}
-      <div className="container-fluid d-flex align-items-center justify-content-center flex-wrap p-4">
+      <div className="container-fluid d-flex flex-column align-items-center justify-content-center flex-wrap p-4">
         <div className="d-flex flex-column">
-          <h1>Results</h1>
           {loading ? (
             <p>Loading results...</p>
           ) : results.length > 0 ? (
             results.map((result) => (
-              <div
-                key={result.id}
-                className="d-flex align-items-center justify-content-center gap-4"
-              >
-                <div className="d-flex flex-column align-items-start justify-content-center">
-                  <h6 className="bg-dark text-white p-2">Lasto 2pm</h6>&nbsp;
-                  &nbsp;
-                  <h6>{result.lasto2pm || 0}</h6>
-                  <h6 className="bg-dark text-white p-2">Lasto 5pm</h6>&nbsp;
-                  &nbsp;
-                  <h6>{result.lasto5pm || 0}</h6>
-                  <h6 className="bg-dark text-white p-2">Lasto 9pm</h6>&nbsp;
-                  &nbsp;
-                  <h6>{result.lasto9pm || 0}</h6>
+              <div className="container-fluid d-flex flex-wrap gap-2">
+                <div className="card" key={result.id}>
+                  <h5 className="card-header bg-dark text-white">Lasto 2pm</h5>
+                  <div className="card-body bg-">
+                    <p className="card-text text-center">
+                      {result.lasto2pm || 0}
+                    </p>
+                  </div>
                 </div>
-                <div className="d-flex flex-column">
-                  <h6 className="bg-dark text-white p-2">Swertres 2pm</h6>&nbsp;
-                  &nbsp;
-                  <h6>{result.swertres2pm || 0}</h6>
-                  <h6 className="bg-dark text-white p-2">Swertres 5pm</h6>&nbsp;
-                  &nbsp;
-                  <h6>{result.swertres5pm || 0}</h6>
-                  <h6 className="bg-dark text-white p-2">Swertres 9pm</h6>&nbsp;
-                  &nbsp;
-                  <h6>{result.swertres9pm || 0}</h6>
+                <div className="card" key={result.id}>
+                  <h5 className="card-header bg-dark text-white">Lasto 5pm</h5>
+                  <div className="card-body bg-">
+                    <p className="card-text text-center">
+                      {result.lasto5pm || 0}
+                    </p>
+                  </div>
                 </div>
-                <div className="d-flex flex-column">
-                  <h6 className="bg-dark text-white p-2">Pick 3</h6>&nbsp;
-                  &nbsp;
-                  <h6>{result.pick3 || 0}</h6>
+                <div className="card" key={result.id}>
+                  <h5 className="card-header bg-dark text-white">Lasto 9pm</h5>
+                  <div className="card-body bg-">
+                    <p className="card-text text-center">
+                      {result.lasto9pm || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="card" key={result.id}>
+                  <h5 className="card-header bg-dark text-white">
+                    Swertres 2pm
+                  </h5>
+                  <div className="card-body bg-">
+                    <p className="card-text text-center">
+                      {result.swertres2pm || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="card" key={result.id}>
+                  <h5 className="card-header bg-dark text-white">
+                    Swertres 5pm
+                  </h5>
+                  <div className="card-body bg-">
+                    <p className="card-text text-center">
+                      {result.swertres5pm || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="card" key={result.id}>
+                  <h5 className="card-header bg-dark text-white">
+                    Swertres 9pm
+                  </h5>
+                  <div className="card-body bg-">
+                    <p className="card-text text-center">
+                      {result.swertres9pm || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="card" key={result.id}>
+                  <h5 className="card-header bg-dark text-white">Pick 3</h5>
+                  <div className="card-body bg-">
+                    <p className="card-text text-center">{result.pick3 || 0}</p>
+                  </div>
                 </div>
               </div>
+              // <div
+              //   key={result.id}
+              //   className="d-flex align-items-center justify-content-center gap-4"
+              // >
+              //   <div className="d-flex flex-column align-items-start justify-content-center">
+              //     <h6 className="bg-dark text-white p-2">Lasto 2pm</h6>&nbsp;
+              //     &nbsp;
+              //     <h6>{result.lasto2pm || 0}</h6>
+              //     <h6 className="bg-dark text-white p-2">Lasto 5pm</h6>&nbsp;
+              //     &nbsp;
+              //     <h6>{result.lasto5pm || 0}</h6>
+              //     <h6 className="bg-dark text-white p-2">Lasto 9pm</h6>&nbsp;
+              //     &nbsp;
+              //     <h6>{result.lasto9pm || 0}</h6>
+              //   </div>
+              //   <div className="d-flex flex-column">
+              //     <h6 className="bg-dark text-white p-2">Swertres 2pm</h6>&nbsp;
+              //     &nbsp;
+              //     <h6>{result.swertres2pm || 0}</h6>
+              //     <h6 className="bg-dark text-white p-2">Swertres 5pm</h6>&nbsp;
+              //     &nbsp;
+              //     <h6>{result.swertres5pm || 0}</h6>
+              //     <h6 className="bg-dark text-white p-2">Swertres 9pm</h6>&nbsp;
+              //     &nbsp;
+              //     <h6>{result.swertres9pm || 0}</h6>
+              //   </div>
+              //   <div className="d-flex flex-column">
+              //     <h6 className="bg-dark text-white p-2">Pick 3</h6>&nbsp;
+              //     &nbsp;
+              //     <h6>{result.pick3 || 0}</h6>
+              //   </div>
+              // </div>
             ))
           ) : (
             <p>No results available.</p>

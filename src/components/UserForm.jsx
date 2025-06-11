@@ -258,7 +258,7 @@ const UserForm = ({ userData, isOpen, onClose }) => {
 
   return (
     <div className="modal fade show" style={{ display: "block" }}>
-      <div className="modal-dialog">
+      <div className="modal-dialog" style={{ maxWidth: "60%" }}>
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">Add Bet</h5>
