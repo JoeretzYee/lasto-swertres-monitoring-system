@@ -1,6 +1,7 @@
 import React from "react";
+import formatCommaNumber from "../utils/formatCommaNumber";
 
-function BulletinBoard() {
+function BulletinBoard({ todaysTotal }) {
   return (
     <table className="table table-dark table-responsive">
       <thead style={{ backgroundColor: "gray" }}>
@@ -43,7 +44,21 @@ function BulletinBoard() {
           <td>10,30,40</td>
         </tr>
       </tbody>
-      Total: <strong>20,000</strong>
+      <p>
+        2pm Total: <strong className="text-success">₱500</strong>
+      </p>
+      <p>
+        5pm Total: <strong className="text-success">₱500</strong>
+      </p>
+      <p>
+        9pm Total: <strong className="text-success">₱500</strong>
+      </p>
+      <p>
+        Total:{" "}
+        <strong className="text-success">
+          ₱{formatCommaNumber(todaysTotal ? todaysTotal : 0)}
+        </strong>
+      </p>
     </table>
   );
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function StationCard({ station, email }) {
   return (
@@ -9,9 +10,12 @@ function StationCard({ station, email }) {
         </h5>
         <h6 className="card-subtitle mb-2 text-white">{email}</h6>
 
-        <a href="#" className="btn btn-sm btn-dark w-100">
+        <Link
+          to={`/station-details/${email}`}
+          className="btn btn-sm btn-dark w-100"
+        >
           View
-        </a>
+        </Link>
       </div>
     </div>
   );

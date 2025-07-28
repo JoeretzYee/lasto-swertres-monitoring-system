@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { collection, db, getAuth, getDocs, signOut } from "../firebase";
+
+import {
+  collection,
+  db,
+  getAuth,
+  getDocs,
+  onSnapshot,
+  signOut,
+} from "../firebase";
 import BetDetails from "./BetDetails";
 import SignupUser from "./SignupUser";
 import DeleteUser from "./DeleteUser";
@@ -7,10 +15,14 @@ import AddResultModal from "../modals/AddResultModal";
 import AddLoadModal from "../modals/AddLoadModal";
 import StationCard from "./StationCard";
 import BulletinBoard from "./BulletinBoard";
+import getTodaysDate from "../utils/getTodaysDate";
 
 function AdminPage({ user }) {
+  const todaysDate = getTodaysDate();
+
   //states
   const [betsData, setBetsdata] = useState([]);
+  const [todaysTotal, setTodaysTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,26 +58,35 @@ function AdminPage({ user }) {
 
     fetchUsers();
   }, []);
-
+  //fetching all bets
   useEffect(() => {
-    const fetchBets = async () => {
-      setLoading(true);
-      try {
-        const querySnapshot = await getDocs(collection(db, "bets"));
+    const unsubscribe = onSnapshot(
+      collection(db, "bets"),
+      (querySnapshot) => {
         const fetchedBets = querySnapshot.docs.map((doc) => ({
-          id: doc.id, // Include document ID
-          ...doc.data(), // Spread the document data
+          id: doc.id,
+          ...doc.data(),
         }));
-        setBetsdata(fetchedBets);
-      } catch (err) {
-        console.error("Error fetching bets:", err);
-        setError("Failed to fetch bets.");
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchBets();
+        const todaysBets = fetchedBets.filter(
+          (bet) => bet.drawDate?.date === todaysDate
+        );
+
+        const totalAmount = todaysBets.reduce(
+          (sum, bet) => (sum += bet.total.amount),
+          0
+        );
+
+        setTodaysTotal(totalAmount);
+        setBetsdata(fetchedBets);
+      },
+      (error) => {
+        console.error("Error listening to real-time listener: ", error);
+        setError("Failed to get real-time listener");
+      }
+    );
+
+    return () => unsubscribe();
   }, []);
 
   //functions
@@ -165,7 +186,7 @@ function AdminPage({ user }) {
             className="col-md-3 bg-dark text-white border-right-2 p-3 h-100 overflow-auto"
             style={{ borderRight: "1px solid #fff" }}
           >
-            <BulletinBoard />
+            <BulletinBoard todaysTotal={todaysTotal} />
           </div>
           {/* Right Section */}
           <div
