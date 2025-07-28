@@ -5,6 +5,8 @@ import SignupUser from "./SignupUser";
 import DeleteUser from "./DeleteUser";
 import AddResultModal from "../modals/AddResultModal";
 import AddLoadModal from "../modals/AddLoadModal";
+import StationCard from "./StationCard";
+import BulletinBoard from "./BulletinBoard";
 
 function AdminPage({ user }) {
   //states
@@ -22,15 +24,26 @@ function AdminPage({ user }) {
     const fetchUsers = async () => {
       try {
         const usersSnapshot = await getDocs(collection(db, "users"));
-        const fetchedUsers = usersSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const fetchedUsers = usersSnapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter((user) => user.email !== "admin@gmail.com")
+          .sort((a, b) => {
+            const getStationNumber = (station) => {
+              const match = station.match(/\d+/); // extract number from "Station X"
+              return match ? parseInt(match[0]) : 0;
+            };
+            return getStationNumber(a.station) - getStationNumber(b.station);
+          });
+
         setUsers(fetchedUsers);
       } catch (err) {
         console.error("Error fetching users:", err);
       }
     };
+
     fetchUsers();
   }, []);
 
@@ -55,7 +68,6 @@ function AdminPage({ user }) {
     fetchBets();
   }, []);
 
-  console.log("bets data: ", betsData);
   //functions
   const logout = () => {
     const auth = getAuth();
@@ -142,8 +154,36 @@ function AdminPage({ user }) {
         </div>
       </div>
       <br />
-      {/* table for all stations data */}
-      <BetDetails />
+      {/* all stations data */}
+      <div
+        className="container-fluid "
+        style={{ height: "calc(100vh - 260px)", overflow: "hidden" }}
+      >
+        <div className="row h-100">
+          {/* Left Section */}
+          <div
+            className="col-md-3 bg-dark text-white border-right-2 p-3 h-100 overflow-auto"
+            style={{ borderRight: "1px solid #fff" }}
+          >
+            <BulletinBoard />
+          </div>
+          {/* Right Section */}
+          <div
+            className="col-md-9 bg-dark p-3 h-100 overflow-auto text-white"
+            style={{ height: "100%", overflowY: "auto" }}
+          >
+            <div className="row">
+              {users.map((user) => (
+                <div className="col-sm-12 col-md-3 mb-2">
+                  <StationCard station={user.station} email={user.email} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* <BetDetails /> */}
 
       <br />
 
