@@ -1,5 +1,5 @@
 import "./App.css";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import AdminPage from "./components/AdminPage";
@@ -48,7 +48,12 @@ function App() {
           setLoading(false);
         }
       } else {
-        // Existing logout handling
+        setUser(null);
+        setUserData(null);
+        setLoading(false);
+        if (!publicRoutes.includes(window.location.pathname)) {
+          navigate("/login", { replace: true });
+        }
       }
     });
 
@@ -57,6 +62,15 @@ function App() {
 
   if (loading) {
     return <div className="text-center py-5">Loading user data...</div>;
+  }
+
+  //check if we need  to redirect from root path
+  if (window.location.pathname === "/" && user) {
+    return userData?.isAdmin ? (
+      <Navigate to="/admin" replace />
+    ) : (
+      <Navigate to="/user" replace />
+    );
   }
 
   return (
@@ -71,20 +85,6 @@ function App() {
 
       <main>
         <Routes>
-          <Route
-            path="/"
-            element={
-              user ? (
-                userData?.isAdmin ? (
-                  <navigate to="/admin" replace />
-                ) : (
-                  <navigate to="/user" replace />
-                )
-              ) : (
-                <navigate to="/login" replace />
-              )
-            }
-          />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
@@ -122,6 +122,10 @@ function App() {
                 element={<UserPage user={user} userData={userData} />}
               />
             }
+          />
+          <Route
+            path="*"
+            element={<Navigate to={user ? "/user" : "/login"} replace />}
           />
         </Routes>
       </main>

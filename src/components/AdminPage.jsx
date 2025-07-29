@@ -23,6 +23,9 @@ function AdminPage({ user }) {
   //states
   const [betsData, setBetsdata] = useState([]);
   const [todaysTotal, setTodaysTotal] = useState(0);
+  const [todaysAll2pmTotal, setTodaysAll2pmTotal] = useState(0);
+  const [todaysAll5pmTotal, setTodaysAll5pmTotal] = useState(0);
+  const [todaysAll9pmTotal, setTodaysAll9pmTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,6 +63,9 @@ function AdminPage({ user }) {
   }, []);
   //fetching all bets
   useEffect(() => {
+    let all2pmTotal = 0;
+    let all5pmTotal = 0;
+    let all9pmTotal = 0;
     const unsubscribe = onSnapshot(
       collection(db, "bets"),
       (querySnapshot) => {
@@ -71,11 +77,23 @@ function AdminPage({ user }) {
         const todaysBets = fetchedBets.filter(
           (bet) => bet.drawDate?.date === todaysDate
         );
-
         const totalAmount = todaysBets.reduce(
           (sum, bet) => (sum += bet.total.amount),
           0
         );
+
+        todaysBets.forEach((bet) => {
+          const time = bet.drawDate?.time;
+          const amount = bet.total?.amount || 0;
+
+          if (time === "2pm") all2pmTotal += amount;
+          else if (time === "5pm") all5pmTotal += amount;
+          else if (time === "9pm") all9pmTotal += amount;
+        });
+
+        setTodaysAll2pmTotal(all2pmTotal);
+        setTodaysAll5pmTotal(all5pmTotal);
+        setTodaysAll9pmTotal(all9pmTotal);
 
         setTodaysTotal(totalAmount);
         setBetsdata(fetchedBets);
@@ -186,7 +204,13 @@ function AdminPage({ user }) {
             className="col-md-3 bg-dark text-white border-right-2 p-3 h-100 overflow-auto"
             style={{ borderRight: "1px solid #fff" }}
           >
-            <BulletinBoard todaysTotal={todaysTotal} />
+            <BulletinBoard
+              overAllTotal={todaysTotal}
+              twoPmTotal={todaysAll2pmTotal}
+              fivePmTotal={todaysAll5pmTotal}
+              ninePmTotal={todaysAll9pmTotal}
+              showBreakdown={false}
+            />
           </div>
           {/* Right Section */}
           <div

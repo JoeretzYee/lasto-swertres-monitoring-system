@@ -17,9 +17,16 @@ function StationDetails() {
   const [betsData, setBetsData] = useState([]);
   const [error, setError] = useState(null);
   const [todaysTotal, setTodaysTotal] = useState(0);
+  const [todays2pmTotal, setTodays2pmTotal] = useState(0);
+  const [todays5pmTotal, setTodays5pmTotal] = useState(0);
+  const [todays9pmTotal, setTodays9pmTotal] = useState(0);
 
   //fetching all bets
   useEffect(() => {
+    let total2pm = 0;
+    let total5pm = 0;
+    let total9pm = 0;
+
     const unsubscribe = onSnapshot(
       collection(db, "bets"),
       (querySnapshot) => {
@@ -28,14 +35,27 @@ function StationDetails() {
           ...doc.data(),
         }));
 
-        // ✅ Filter only bets for this email and today's date
+        // Filter only bets for this email and today's date
         const filteredBets = fetchedBets.filter(
-          (bet) => bet.email === email && bet.drawDate?.date === todaysDate
+          (bet) => bet.user === email && bet.drawDate?.date === todaysDate
         );
 
-        // ✅ Calculate total for today's bets
+        filteredBets.forEach((bet) => {
+          const time = bet.drawDate?.time;
+          const amount = bet.total?.amount || 0;
+
+          if (time === "2pm") {
+            total2pm += amount;
+          } else if (time === "5pm") total5pm += amount;
+          else if (time === "9pm") total9pm += amount;
+        });
+        setTodays2pmTotal(total2pm);
+        setTodays5pmTotal(total5pm);
+        setTodays9pmTotal(total9pm);
+
+        // Calculate total for today's bets
         const totalAmount = filteredBets.reduce(
-          (sum, bet) => sum + (bet.amount || 0),
+          (sum, bet) => (sum += bet.total.amount || 0),
           0
         );
 
@@ -67,30 +87,58 @@ function StationDetails() {
             className="col-md-3 bg-dark text-white border-right-2 p-3 h-100 overflow-auto"
             style={{ borderRight: "1px solid #fff" }}
           >
-            <BulletinBoard todaysTotal={0} />
+            <BulletinBoard
+              overAllTotal={todaysTotal}
+              twoPmTotal={todays2pmTotal}
+              fivePmTotal={todays5pmTotal}
+              ninePmTotal={todays9pmTotal}
+              showBreakdown={true}
+            />
           </div>
           {/* Right Section */}
           <div
             className="col-md-9 bg-dark p-3 h-100 overflow-auto text-white"
             style={{ height: "100%", overflowY: "auto" }}
           >
-            <div className="row">hello {email}</div>
+            <div className="row">
+              <span>
+                {" "}
+                login as: <small className="text-muted"> {email} </small>{" "}
+              </span>
+            </div>
             <h4>Station Bets for {email}</h4>
             {error && <p className="text-danger">{error}</p>}
             {betsData.length === 0 ? (
               <p>No bets for today.</p>
             ) : (
-              <ul className="list-group">
-                {betsData.map((bet) => (
-                  <li
-                    key={bet.id}
-                    className="list-group-item bg-dark text-white d-flex justify-content-between"
-                  >
-                    <span>{bet.drawDate?.date}</span>
-                    <span>{bet.amount}</span>
-                  </li>
-                ))}
-              </ul>
+              <table className="table table-dark table-responsive">
+                <thead style={{ backgroundColor: "gray" }}>
+                  <th>Reference No.</th>
+                  <th>Draw Date</th>
+                  <th>Draw Time</th>
+                  <th>Bets</th>
+                </thead>
+                <tbody>
+                  {betsData.map((bet) => (
+                    <tr key={bet.id}>
+                      <td>{bet.referenceNo}</td>
+                      <td>{bet.drawDate?.date}</td>
+                      <td>{bet.drawDate?.time}</td>
+
+                      <td>
+                        <ul className="list-unstyled mb-0">
+                          {bet.bets.map((b, index) => (
+                            <li key={index}>
+                              {b.game} - {b.number} -{" "}
+                              <span className="text-success">₱{b.amount}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
         </div>
