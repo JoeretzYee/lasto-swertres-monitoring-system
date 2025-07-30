@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import {
   collection,
   db,
@@ -13,7 +13,9 @@ import getTodaysDate from "../utils/getTodaysDate";
 
 function StationDetails() {
   const { email } = useParams();
+  const location = useLocation();
   const todaysDate = getTodaysDate();
+  const selectedDate = location.state?.selectedDate || todaysDate;
   const [betsData, setBetsData] = useState([]);
   const [error, setError] = useState(null);
   const [todaysTotal, setTodaysTotal] = useState(0);
@@ -37,7 +39,7 @@ function StationDetails() {
 
         // Filter only bets for this email and today's date
         const filteredBets = fetchedBets.filter(
-          (bet) => bet.user === email && bet.drawDate?.date === todaysDate
+          (bet) => bet.user === email && bet.drawDate?.date === selectedDate
         );
 
         filteredBets.forEach((bet) => {
@@ -69,7 +71,7 @@ function StationDetails() {
     );
 
     return () => unsubscribe();
-  }, [email, todaysDate]);
+  }, [email, selectedDate]);
 
   return (
     <div className="container-fluid d-flex align-items-center justify-content-between flex-wrap">
@@ -93,6 +95,7 @@ function StationDetails() {
               fivePmTotal={todays5pmTotal}
               ninePmTotal={todays9pmTotal}
               showBreakdown={true}
+              selectedDate={selectedDate}
             />
           </div>
           {/* Right Section */}

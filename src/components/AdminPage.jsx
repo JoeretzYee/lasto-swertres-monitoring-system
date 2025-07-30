@@ -21,11 +21,16 @@ function AdminPage({ user }) {
   const todaysDate = getTodaysDate();
 
   //states
+  const [selectedDate, setSelectedDate] = useState(todaysDate);
   const [betsData, setBetsdata] = useState([]);
-  const [todaysTotal, setTodaysTotal] = useState(0);
-  const [todaysAll2pmTotal, setTodaysAll2pmTotal] = useState(0);
-  const [todaysAll5pmTotal, setTodaysAll5pmTotal] = useState(0);
-  const [todaysAll9pmTotal, setTodaysAll9pmTotal] = useState(0);
+  // const [todaysTotal, setTodaysTotal] = useState(0);
+  const [selectedDateTotal, setSelectedDateTotal] = useState(0);
+  // const [todaysAll2pmTotal, setTodaysAll2pmTotal] = useState(0);
+  const [selectedDate2pmTotal, setSelectedDate2pmTotal] = useState(0);
+  // const [todaysAll5pmTotal, setTodaysAll5pmTotal] = useState(0);
+  const [selectedDate5pmTotal, setSelectedDate5pmTotal] = useState(0);
+  // const [todaysAll9pmTotal, setTodaysAll9pmTotal] = useState(0);
+  const [selectedDate9pmTotal, setSelectedDate9pmTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,7 +80,7 @@ function AdminPage({ user }) {
         }));
 
         const todaysBets = fetchedBets.filter(
-          (bet) => bet.drawDate?.date === todaysDate
+          (bet) => bet.drawDate?.date === selectedDate
         );
         const totalAmount = todaysBets.reduce(
           (sum, bet) => (sum += bet.total.amount),
@@ -91,11 +96,11 @@ function AdminPage({ user }) {
           else if (time === "9pm") all9pmTotal += amount;
         });
 
-        setTodaysAll2pmTotal(all2pmTotal);
-        setTodaysAll5pmTotal(all5pmTotal);
-        setTodaysAll9pmTotal(all9pmTotal);
+        setSelectedDate2pmTotal(all2pmTotal);
+        setSelectedDate5pmTotal(all5pmTotal);
+        setSelectedDate9pmTotal(all9pmTotal);
 
-        setTodaysTotal(totalAmount);
+        setSelectedDateTotal(totalAmount);
         setBetsdata(fetchedBets);
       },
       (error) => {
@@ -105,7 +110,7 @@ function AdminPage({ user }) {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [selectedDate]);
 
   //functions
   const logout = () => {
@@ -143,6 +148,12 @@ function AdminPage({ user }) {
       {/* container up */}
       <div className="container-fluid d-flex align-items-center justify-content-between flex-wrap">
         <small>{user.email}</small>
+        <input
+          type="date"
+          className="form-control w-50"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+        />
         <div className="">
           <button
             className="btn btn-md btn-primary "
@@ -175,7 +186,7 @@ function AdminPage({ user }) {
           )}
           <button
             onClick={() => setIsModalOpen(true)}
-            className="btn btn-md btn-warning "
+            className="btn btn-md btn-primary "
           >
             Create User
           </button>{" "}
@@ -205,10 +216,11 @@ function AdminPage({ user }) {
             style={{ borderRight: "1px solid #fff" }}
           >
             <BulletinBoard
-              overAllTotal={todaysTotal}
-              twoPmTotal={todaysAll2pmTotal}
-              fivePmTotal={todaysAll5pmTotal}
-              ninePmTotal={todaysAll9pmTotal}
+              overAllTotal={selectedDateTotal}
+              twoPmTotal={selectedDate2pmTotal}
+              fivePmTotal={selectedDate5pmTotal}
+              ninePmTotal={selectedDate9pmTotal}
+              selectedDate={selectedDate}
               showBreakdown={false}
             />
           </div>
@@ -220,7 +232,11 @@ function AdminPage({ user }) {
             <div className="row">
               {users.map((user) => (
                 <div className="col-sm-12 col-md-3 mb-2">
-                  <StationCard station={user.station} email={user.email} />
+                  <StationCard
+                    station={user.station}
+                    email={user.email}
+                    selectedDate={selectedDate}
+                  />
                 </div>
               ))}
             </div>

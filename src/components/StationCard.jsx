@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function StationCard({ station, email }) {
+function StationCard({ station, email, selectedDate }) {
   return (
     <div className="card text-center bg-success text-white">
       <div className="card-body">
@@ -12,6 +12,7 @@ function StationCard({ station, email }) {
 
         <Link
           to={`/station-details/${email}`}
+          state={{ selectedDate }}
           className="btn btn-sm btn-dark w-100"
         >
           View

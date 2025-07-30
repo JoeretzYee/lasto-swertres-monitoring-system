@@ -17,6 +17,7 @@ function BulletinBoard({
   ninePmTotal = 0,
   overAllTotal = 0,
   showBreakdown = false,
+  selectedDate,
 }) {
   const todaysDate = getTodaysDate();
   const [resultsData, setResultsData] = useState([]);
@@ -38,7 +39,7 @@ function BulletinBoard({
         }));
 
         const todaysResults = fetchedResults.find(
-          (result) => result.date === todaysDate
+          (result) => result.date === selectedDate
         );
 
         if (todaysResults) {
@@ -59,7 +60,7 @@ function BulletinBoard({
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [selectedDate]);
 
   return (
     <table className="table table-dark table-responsive">
@@ -100,7 +101,7 @@ function BulletinBoard({
         <tr>
           <td></td>
           <td></td>
-          <td>10,30,40</td>
+          <td></td>
         </tr>
       </tbody>
 
