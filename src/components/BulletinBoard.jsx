@@ -16,6 +16,10 @@ function BulletinBoard({
   fivePmTotal = 0,
   ninePmTotal = 0,
   overAllTotal = 0,
+  lastoTotal = 0,
+  swertresTotal = 0,
+  pickThreeTotal = 0,
+  fourD60Total = 0,
   showBreakdown = false,
   selectedDate,
 }) {
@@ -28,6 +32,7 @@ function BulletinBoard({
   const [ninePmLastoResult, setNinePmLastoResult] = useState(0);
   const [ninePmSwertresResult, setNinePmSwertresResult] = useState(0);
   const [pickThree, setPickThree] = useState(0);
+  const [fourD60, setFourD60] = useState(0);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -51,6 +56,10 @@ function BulletinBoard({
 
           setNinePmLastoResult(todaysResults.lasto9pm || "-");
           setNinePmSwertresResult(todaysResults.swertres9pm || "-");
+
+          setPickThree(todaysResults.pickThree);
+
+          setFourD60(todaysResults.fourD60);
 
           // If you add pick3 later, you can handle it here too
         }
@@ -99,8 +108,14 @@ function BulletinBoard({
           </td>
         </tr>
         <tr>
-          <td></td>
-          <td></td>
+          <td>
+            <small>pick3: </small>
+            <strong>{pickThree}</strong>
+          </td>
+          <td>
+            <small>4D60:</small>
+            <strong>{fourD60}</strong>
+          </td>
           <td></td>
         </tr>
       </tbody>
@@ -121,6 +136,30 @@ function BulletinBoard({
         9pm Total:{" "}
         <strong className="text-success">
           ₱{formatCommaNumber(ninePmTotal)}
+        </strong>
+      </p>
+      <p>
+        Lasto Total:{" "}
+        <strong className="text-success">
+          ₱{formatCommaNumber(lastoTotal)}
+        </strong>
+      </p>
+      <p>
+        Swertres Total:{" "}
+        <strong className="text-success">
+          ₱{formatCommaNumber(swertresTotal)}
+        </strong>
+      </p>
+      <p>
+        Pick3 Total:{" "}
+        <strong className="text-success">
+          ₱{formatCommaNumber(pickThreeTotal)}
+        </strong>
+      </p>
+      <p>
+        4D60 Total:{" "}
+        <strong className="text-success">
+          ₱{formatCommaNumber(fourD60Total)}
         </strong>
       </p>
       <p>

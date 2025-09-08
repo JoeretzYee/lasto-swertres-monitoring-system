@@ -6,6 +6,13 @@ const generateUniqueReferenceNo = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
+const gameLabels = {
+  lasto: "Lasto (L2)",
+  swertres: "Swertres (S3)",
+  pick3: "Pick 3",
+  fourD60: "4D60",
+};
+
 const UserForm = ({ userData, isOpen, onClose }) => {
   // States
   const [referenceNo, setReferenceNo] = useState("");
@@ -34,13 +41,7 @@ const UserForm = ({ userData, isOpen, onClose }) => {
   const [bets, setBets] = useState([]);
   const [game, setGame] = useState("lasto");
   const [number, setNumber] = useState("");
-  const [additionalNumbers, setAdditionalNumbers] = useState([
-    "",
-    "",
-    "",
-    "",
-    "",
-  ]); // For Pick 3
+
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -72,19 +73,14 @@ const UserForm = ({ userData, isOpen, onClose }) => {
   const handleGameChange = (e) => {
     setGame(e.target.value);
     setNumber(""); // Reset number field when game changes
-    setAdditionalNumbers(["", "", "", "", ""]); // Reset additional numbers
   };
   const handleNumberChange = (e) => setNumber(e.target.value);
-  const handleAdditionalNumberChange = (index, value) => {
-    const newAdditionalNumbers = [...additionalNumbers];
-    newAdditionalNumbers[index] = value;
-    setAdditionalNumbers(newAdditionalNumbers);
-  };
+
   const handleAmountChange = (e) => setAmount(e.target.value);
 
   const handleAddBet = () => {
     if (game && amount) {
-      // Validate number length based on game
+      // ✅ Validate number length per game
       if (game === "lasto" && number.length !== 2) {
         Swal.fire({
           icon: "error",
@@ -99,26 +95,31 @@ const UserForm = ({ userData, isOpen, onClose }) => {
           text: "Swertres (S3) requires a 3-digit number.",
         });
         return;
-      } else if (game === "pick3") {
-        // Validate all 6 numbers for Pick 3
-        const allNumbers = [number, ...additionalNumbers];
-        if (allNumbers.some((num) => num.length !== 3)) {
-          Swal.fire({
-            icon: "error",
-            title: "Invalid Number",
-            text: "Pick 3 requires 6 numbers, each with 3 digits.",
-          });
-          return;
-        }
+      } else if (game === "pick3" && number.length !== 3) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Number",
+          text: "Pick 3 requires a 3-digit number.",
+        });
+        return;
+      } else if (game === "fourD60" && number.length !== 4) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Number",
+          text: "4D60 requires a 4-digit number.",
+        });
+        return;
       }
 
-      // Check if the number is controlled
-      const isControlledNumber =
-        loadControlData?.controlNumber?.numbers?.includes(parseInt(number));
+      // ✅ Convert entered number to int
+      const parsedNumber = parseInt(number, 10);
 
-      // Validate the bet amount based on whether the number is controlled
-      if (isControlledNumber) {
-        const maxBetAmount = loadControlData.controlNumber.controlLoad; // Max bet is controlLoad
+      // ✅ Check if this number is globally controlled
+      const isGlobalControlled =
+        loadControlData?.controlNumbers?.numbers?.includes(parsedNumber);
+
+      if (isGlobalControlled) {
+        const maxBetAmount = loadControlData.controlNumbers.amount;
         if (parseFloat(amount) > maxBetAmount) {
           Swal.fire({
             icon: "error",
@@ -127,28 +128,34 @@ const UserForm = ({ userData, isOpen, onClose }) => {
           });
           return;
         }
-      } else {
-        // For non-controlled numbers, check against the load value
-        if (parseFloat(amount) > loadControlData?.load) {
-          Swal.fire({
-            icon: "error",
-            title: "Bet Limit Exceeded",
-            text: `The maximum bet for any number is ${loadControlData?.load}.`,
-          });
-          return;
+      }
+
+      // ✅ Check game-specific limits
+      const gameData = loadControlData?.[game];
+      if (gameData) {
+        const isGameControlled = gameData.numbers?.includes(parsedNumber);
+        if (isGameControlled) {
+          const maxBetAmount = gameData.amount;
+          if (parseFloat(amount) > maxBetAmount) {
+            Swal.fire({
+              icon: "error",
+              title: "Bet Limit Exceeded",
+              text: `The maximum bet for ${game} number ${number} is ${maxBetAmount}.`,
+            });
+            return;
+          }
         }
       }
 
-      // Add the bet
+      // ✅ If passes checks, add bet
       const bet = {
         game,
-        number:
-          game === "pick3" ? [number, ...additionalNumbers].join(", ") : number,
+        number: number,
         amount: parseFloat(amount),
       };
       setBets([...bets, bet]);
       setNumber("");
-      setAdditionalNumbers(["", "", "", "", ""]);
+
       setAmount("");
     }
   };
@@ -341,6 +348,7 @@ const UserForm = ({ userData, isOpen, onClose }) => {
                         <option value="lasto">Lasto (L2)</option>
                         <option value="swertres">Swertres (S3)</option>
                         <option value="pick3">Pick 3</option>
+                        <option value="fourD60">4D60</option>
                       </select>
                     </div>
                     <div className="col-md-4">
@@ -351,25 +359,6 @@ const UserForm = ({ userData, isOpen, onClose }) => {
                         value={number}
                         onChange={handleNumberChange}
                       />
-                      {game === "pick3" && (
-                        <>
-                          {additionalNumbers.map((num, index) => (
-                            <input
-                              key={index}
-                              type="text"
-                              className="form-control mt-2"
-                              placeholder={`Number ${index + 2}`}
-                              value={num}
-                              onChange={(e) =>
-                                handleAdditionalNumberChange(
-                                  index,
-                                  e.target.value
-                                )
-                              }
-                            />
-                          ))}
-                        </>
-                      )}
                     </div>
                     <div className="col-md-4">
                       <input
@@ -407,13 +396,7 @@ const UserForm = ({ userData, isOpen, onClose }) => {
                         {bets.map((bet, index) => (
                           <tr key={index}>
                             <td>{index + 1}</td>
-                            <td>
-                              {bet.game === "lasto"
-                                ? "Lasto (L2)"
-                                : bet.game === "swertres"
-                                ? "Swertres (S3)"
-                                : "Pick 3"}
-                            </td>
+                            <td>{gameLabels[bet.game] || bet.game}</td>
                             <td>{bet.number}</td>
                             <td>{bet.amount.toFixed(2)}</td>
                           </tr>

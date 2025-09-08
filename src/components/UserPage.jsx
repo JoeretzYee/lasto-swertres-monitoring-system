@@ -108,6 +108,31 @@ function UserPage({ user, userData }) {
     return timeTotals;
   };
 
+  //calculate totals for each game(lasto,swertres,pick3,4d60)
+  const calculateGameTotals = (bets) => {
+    const gameTotals = {
+      lasto: 0,
+      swertres: 0,
+      pick3: 0,
+      fourD60: 0,
+    };
+
+    bets.forEach((bet) => {
+      bet.bets.forEach((b) => {
+        if (b.game === "lasto") {
+          gameTotals.lasto += b.amount || 0;
+        } else if (b.game === "swertres") {
+          gameTotals.swertres += b.amount || 0;
+        } else if (b.game === "pick3") {
+          gameTotals.pick3 += b.amount || 0;
+        } else if (b.game === "fourD60") {
+          gameTotals.fourD60 += b.amount || 0;
+        }
+      });
+    });
+    return gameTotals;
+  };
+
   const logout = () => {
     const auth = getAuth();
     signOut(auth)
@@ -210,7 +235,17 @@ function UserPage({ user, userData }) {
                 <div className="card" key={result.id}>
                   <h5 className="card-header bg-dark text-white">Pick 3</h5>
                   <div className="card-body bg-">
-                    <p className="card-text text-center">{result.pick3 || 0}</p>
+                    <p className="card-text text-center">
+                      {result.pickThree || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="card" key={result.id}>
+                  <h5 className="card-header bg-dark text-white">4D60</h5>
+                  <div className="card-body bg-">
+                    <p className="card-text text-center">
+                      {result.fourD60 || 0}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -280,6 +315,10 @@ function UserPage({ user, userData }) {
                   <th>2 PM Total</th>
                   <th>5 PM Total</th>
                   <th>9 PM Total</th>
+                  <th>L2 Total</th>
+                  <th>S3 Total</th>
+                  <th>P3 Total</th>
+                  <th>4D60 Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -329,6 +368,23 @@ function UserPage({ user, userData }) {
                   </td>
                   <td className="fw-bold">
                     ₱{formatCurrency(calculateTimeTotals(filteredBets)["9pm"])}
+                  </td>
+                  <td>
+                    {" "}
+                    ₱{formatCurrency(calculateGameTotals(filteredBets).lasto)}
+                  </td>
+                  <td>
+                    {" "}
+                    ₱
+                    {formatCurrency(calculateGameTotals(filteredBets).swertres)}
+                  </td>
+                  <td>
+                    {" "}
+                    ₱{formatCurrency(calculateGameTotals(filteredBets).pick3)}
+                  </td>
+                  <td>
+                    {" "}
+                    ₱{formatCurrency(calculateGameTotals(filteredBets).fourD60)}
                   </td>
                 </tr>
               </tfoot>

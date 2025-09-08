@@ -19,7 +19,8 @@ const AddResultModal = ({ isOpen, onClose }) => {
     swertres2pm: "",
     swertres5pm: "",
     swertres9pm: "",
-    pick3: "",
+    pickThree: "",
+    fourD60: "",
   });
   const [docId, setDocId] = useState(null); // To store the document ID for updating
 
@@ -50,6 +51,8 @@ const AddResultModal = ({ isOpen, onClose }) => {
           swertres2pm: "",
           swertres5pm: "",
           swertres9pm: "",
+          pickThree: "",
+          fourD60: "",
         });
         setDocId(null); // No existing document, so set ID to null
       }
@@ -82,11 +85,13 @@ const AddResultModal = ({ isOpen, onClose }) => {
         timestamp: new Date(),
       };
 
-      console.log("Data to save/update:", data); // Debugging log
+      // Remove empty fields so they don’t overwrite existing values
+      const filteredData = Object.fromEntries(
+        Object.entries(data).filter(([_, value]) => value !== "")
+      );
 
       if (docId) {
-        // Update existing document
-        await updateDoc(doc(db, "results", docId), data);
+        await updateDoc(doc(db, "results", docId), filteredData);
         Swal.fire({
           title: "Updated!",
           text: "Results have been updated.",
@@ -94,7 +99,6 @@ const AddResultModal = ({ isOpen, onClose }) => {
           confirmButtonText: "OK",
         });
       } else {
-        // Create new document
         await addDoc(collection(db, "results"), data);
         Swal.fire({
           title: "Saved!",
@@ -103,7 +107,7 @@ const AddResultModal = ({ isOpen, onClose }) => {
           confirmButtonText: "OK",
         });
       }
-      onClose(); // Close the modal after saving/updating
+      onClose();
     } catch (error) {
       console.error("Error saving/updating document: ", error);
       Swal.fire({
@@ -131,80 +135,105 @@ const AddResultModal = ({ isOpen, onClose }) => {
           </div>
           <div className="modal-body">
             <div className="mb-3">
-              <label className="form-label">Lasto 2 PM Result:</label>
-              <input
-                type="text"
-                className="form-control"
-                name="lasto2pm"
-                value={results.lasto2pm}
-                onChange={handleChange}
-                placeholder="Enter result"
-              />
+              <div className="row">
+                <div className="col-sm-12 col-md-4 col-lg-4">
+                  <label className="form-label">Lasto 2 PM Result:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="lasto2pm"
+                    value={results.lasto2pm}
+                    onChange={handleChange}
+                    placeholder="Enter result"
+                  />
+                </div>
+                <div className="col-sm-12 col-md-4 col-lg-4">
+                  {" "}
+                  <label className="form-label">Lasto 5 PM Result:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="lasto5pm"
+                    value={results.lasto5pm}
+                    onChange={handleChange}
+                    placeholder="Enter result"
+                  />
+                </div>
+                <div className="col-sm-12 col-md-4 col-lg-4">
+                  {" "}
+                  <label className="form-label">Lasto 9 PM Result:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="lasto9pm"
+                    value={results.lasto9pm}
+                    onChange={handleChange}
+                    placeholder="Enter result"
+                  />
+                </div>
+              </div>
             </div>
+
             <div className="mb-3">
-              <label className="form-label">Lasto 5 PM Result:</label>
-              <input
-                type="text"
-                className="form-control"
-                name="lasto5pm"
-                value={results.lasto5pm}
-                onChange={handleChange}
-                placeholder="Enter result"
-              />
+              <div className="row">
+                <div className="col-sm-12 col-md-4 col-lg-4">
+                  <label className="form-label">Swertres 2 PM Result:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="swertres2pm"
+                    value={results.swertres2pm}
+                    onChange={handleChange}
+                    placeholder="Enter result"
+                  />
+                </div>
+                <div className="col-sm-12 col-md-4 col-lg-4">
+                  <label className="form-label">Swertres 5 PM Result:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="swertres5pm"
+                    value={results.swertres5pm}
+                    onChange={handleChange}
+                    placeholder="Enter result"
+                  />
+                </div>
+                <div className="col-sm-12 col-md-4 col-lg-4">
+                  <label className="form-label">Swertres 9 PM Result:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="swertres9pm"
+                    value={results.swertres9pm}
+                    onChange={handleChange}
+                    placeholder="Enter result"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="mb-3">
-              <label className="form-label">Lasto 9 PM Result:</label>
-              <input
-                type="text"
-                className="form-control"
-                name="lasto9pm"
-                value={results.lasto9pm}
-                onChange={handleChange}
-                placeholder="Enter result"
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Swertres 2 PM Result:</label>
-              <input
-                type="text"
-                className="form-control"
-                name="swertres2pm"
-                value={results.swertres2pm}
-                onChange={handleChange}
-                placeholder="Enter result"
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Swertres 5 PM Result:</label>
-              <input
-                type="text"
-                className="form-control"
-                name="swertres5pm"
-                value={results.swertres5pm}
-                onChange={handleChange}
-                placeholder="Enter result"
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Swertres 9 PM Result:</label>
-              <input
-                type="text"
-                className="form-control"
-                name="swertres9pm"
-                value={results.swertres9pm}
-                onChange={handleChange}
-                placeholder="Enter result"
-              />
-            </div>
+
             <div className="mb-3">
               <label className="form-label">Pick 3 Result:</label>
               <input
                 type="text"
                 className="form-control"
-                name="pick3"
-                value={results.pick3}
+                name="pickThree"
+                value={results.pickThree}
                 onChange={handleChange}
                 placeholder="Enter result"
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="4d60" className="form-label">
+                4D60 Result:
+              </label>
+              <input
+                type="text"
+                name="fourD60"
+                value={results.fourD60}
+                onChange={handleChange}
+                placeholder="Enter result"
+                className="form-control"
               />
             </div>
           </div>

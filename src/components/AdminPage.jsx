@@ -31,6 +31,11 @@ function AdminPage({ user }) {
   const [selectedDate5pmTotal, setSelectedDate5pmTotal] = useState(0);
   // const [todaysAll9pmTotal, setTodaysAll9pmTotal] = useState(0);
   const [selectedDate9pmTotal, setSelectedDate9pmTotal] = useState(0);
+  const [todaysLastoTotal, setTodaysLastoTotal] = useState(0);
+  const [todaysSwertresTotal, setTodaysSwertresTotal] = useState(0);
+  const [todaysPickThreeTotal, setTodaysPickThreeTotal] = useState(0);
+  const [todaysFourD60Total, setTodaysFourD60Total] = useState(0);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -71,6 +76,12 @@ function AdminPage({ user }) {
     let all2pmTotal = 0;
     let all5pmTotal = 0;
     let all9pmTotal = 0;
+
+    let lastoTotal = 0;
+    let swertresTotal = 0;
+    let pickThreeTotal = 0;
+    let fourD60Total = 0;
+
     const unsubscribe = onSnapshot(
       collection(db, "bets"),
       (querySnapshot) => {
@@ -91,14 +102,28 @@ function AdminPage({ user }) {
           const time = bet.drawDate?.time;
           const amount = bet.total?.amount || 0;
 
+          // Totals by time
           if (time === "2pm") all2pmTotal += amount;
           else if (time === "5pm") all5pmTotal += amount;
           else if (time === "9pm") all9pmTotal += amount;
+
+          // Totals by game type
+          bet.bets.forEach((b) => {
+            if (b.game === "lasto") lastoTotal += b.amount;
+            else if (b.game === "swertres") swertresTotal += b.amount;
+            else if (b.game === "pick3") pickThreeTotal += b.amount;
+            else if (b.game === "4d60") fourD60Total += b.amount;
+          });
         });
 
         setSelectedDate2pmTotal(all2pmTotal);
         setSelectedDate5pmTotal(all5pmTotal);
         setSelectedDate9pmTotal(all9pmTotal);
+
+        setTodaysLastoTotal(lastoTotal);
+        setTodaysSwertresTotal(swertresTotal);
+        setTodaysPickThreeTotal(pickThreeTotal);
+        setTodaysFourD60Total(fourD60Total);
 
         setSelectedDateTotal(totalAmount);
         setBetsdata(fetchedBets);
@@ -147,62 +172,72 @@ function AdminPage({ user }) {
     <div className="container-fluid d-flex flex-column align-items-start justify-content-start py-3  text-black">
       {/* container up */}
       <div className="container-fluid d-flex align-items-center justify-content-between flex-wrap">
+        {/* Left - email */}
         <small>{user.email}</small>
+
+        {/* Center - date input */}
         <input
           type="date"
-          className="form-control w-50"
+          className="form-control w-50 mx-2"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
         />
-        <div className="">
-          <button
-            className="btn btn-md btn-primary "
-            onClick={handleOpenAddResultModal}
-          >
-            Add Result for Today
-          </button>{" "}
-          {/* Render the modal */}
-          {isAddResultModalOpen && (
-            <AddResultModal
-              isOpen={handleOpenAddResultModal}
-              onClose={handleCloseAddResultModal}
-              onSave={handleSaveResults}
-            />
-          )}
-          &nbsp;
-          <button
-            className="btn btn-md btn-primary"
-            onClick={handleOpenAddLoadModal}
-          >
-            Add Load
-          </button>{" "}
-          &nbsp;
-          {isAddLoadModalOpen && (
-            <AddLoadModal
-              isOpen={handleOpenAddLoadModal}
-              onClose={handleCloseAddLoadModal}
-              onSave={handleSaveResults}
-            />
-          )}
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="btn btn-md btn-primary "
-          >
-            Create User
-          </button>{" "}
-          &nbsp;
-          <button
-            onClick={() => setIsDeleteModalOpen(true)}
-            className="btn btn-md btn-danger"
-          >
-            Delete User
-          </button>
-          &nbsp;
-          <button className="btn btn-md btn-dark mt-2 mt-sm-0" onClick={logout}>
-            logout
-          </button>
+        <br />
+        {/* Right - button groups */}
+        <div className="d-flex justify-content-between flex-grow-1 mt-2 mt-sm-0">
+          {/* Left button group */}
+          <div>
+            <button
+              className="btn btn-md btn-primary"
+              onClick={handleOpenAddResultModal}
+            >
+              Add Result for Today
+            </button>
+            {isAddResultModalOpen && (
+              <AddResultModal
+                isOpen={handleOpenAddResultModal}
+                onClose={handleCloseAddResultModal}
+                onSave={handleSaveResults}
+              />
+            )}
+            &nbsp;
+            <button
+              className="btn btn-md btn-primary"
+              onClick={handleOpenAddLoadModal}
+            >
+              Add Load
+            </button>
+            {isAddLoadModalOpen && (
+              <AddLoadModal
+                isOpen={handleOpenAddLoadModal}
+                onClose={handleCloseAddLoadModal}
+                onSave={handleSaveResults}
+              />
+            )}
+            &nbsp;
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="btn btn-md btn-primary"
+            >
+              Create User
+            </button>
+          </div>
+
+          {/* Right button group */}
+          <div className="ms-auto">
+            <button
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="btn btn-md btn-danger me-2"
+            >
+              Delete User
+            </button>
+            <button className="btn btn-md btn-dark" onClick={logout}>
+              Logout
+            </button>
+          </div>
         </div>
       </div>
+
       <br />
       {/* all stations data */}
       <div
@@ -220,6 +255,10 @@ function AdminPage({ user }) {
               twoPmTotal={selectedDate2pmTotal}
               fivePmTotal={selectedDate5pmTotal}
               ninePmTotal={selectedDate9pmTotal}
+              lastoTotal={todaysLastoTotal}
+              swertresTotal={todaysSwertresTotal}
+              pickThreeTotal={todaysPickThreeTotal}
+              fourD60Total={todaysFourD60Total}
               selectedDate={selectedDate}
               showBreakdown={false}
             />
