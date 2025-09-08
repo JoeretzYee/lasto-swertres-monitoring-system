@@ -13,9 +13,11 @@ import SignupUser from "./SignupUser";
 import DeleteUser from "./DeleteUser";
 import AddResultModal from "../modals/AddResultModal";
 import AddLoadModal from "../modals/AddLoadModal";
+import ViewBetsNumbersTotalModal from "../modals/ViewBetsNumbersTotalModal";
 import StationCard from "./StationCard";
 import BulletinBoard from "./BulletinBoard";
 import getTodaysDate from "../utils/getTodaysDate";
+
 
 function AdminPage({ user }) {
   const todaysDate = getTodaysDate();
@@ -39,6 +41,7 @@ function AdminPage({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isViewBetsNumbersTotalModalOpen,setIsViewBetsNumbersTotalModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State to control delete user modal
   const [isAddResultModalOpen, setIsAddResultModalOpen] = useState(false);
   const [isAddLoadModalOpen, setIsAddLoadModalOpen] = useState(false);
@@ -172,7 +175,8 @@ function AdminPage({ user }) {
     <div className="container-fluid d-flex flex-column align-items-start justify-content-start py-3  text-black">
       {/* container up */}
       <div className="container-fluid d-flex align-items-center justify-content-between flex-wrap">
-        {/* Left - email */}
+        <div className="container-flui d-flex align-items-center justify-content-between flex-wrap">
+  {/* Left - email */}
         <small>{user.email}</small>
 
         {/* Center - date input */}
@@ -182,6 +186,8 @@ function AdminPage({ user }) {
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
         />
+        </div>
+      
         <br />
         {/* Right - button groups */}
         <div className="d-flex justify-content-between flex-grow-1 mt-2 mt-sm-0">
@@ -214,6 +220,18 @@ function AdminPage({ user }) {
                 onSave={handleSaveResults}
               />
             )}
+            &nbsp;
+            <button className="btn btn-md btn-primary" onClick={() => setIsViewBetsNumbersTotalModalOpen(true)}>
+              View Total Bet Numbers
+            </button>
+            {isViewBetsNumbersTotalModalOpen && (
+  <ViewBetsNumbersTotalModal
+    isOpen={isViewBetsNumbersTotalModalOpen}
+    onClose={() => setIsViewBetsNumbersTotalModalOpen(false)}
+    selectedDate={selectedDate}
+  />
+)}
+
             &nbsp;
             <button
               onClick={() => setIsModalOpen(true)}
