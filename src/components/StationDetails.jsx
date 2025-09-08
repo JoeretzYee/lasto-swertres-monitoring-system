@@ -23,11 +23,21 @@ function StationDetails() {
   const [todays5pmTotal, setTodays5pmTotal] = useState(0);
   const [todays9pmTotal, setTodays9pmTotal] = useState(0);
 
+  const [eachStationLastoTotal, setEachStationLastoTotal] = useState(0);
+  const [eachStationSwertresTotal, setEachStationSwertresTotal] = useState(0);
+  const [eachStationPickThreeTotal, setEachStationPickThreeTotal] = useState(0);
+  const [eachStationFourD60Total, setEachStationFourD60Total] = useState(0);
+
   //fetching all bets
   useEffect(() => {
     let total2pm = 0;
     let total5pm = 0;
     let total9pm = 0;
+
+    let lastoTotal = 0;
+    let swertresTotal = 0;
+    let pickThreeTotal = 0;
+    let fourDTotal = 0;
 
     const unsubscribe = onSnapshot(
       collection(db, "bets"),
@@ -46,14 +56,33 @@ function StationDetails() {
           const time = bet.drawDate?.time;
           const amount = bet.total?.amount || 0;
 
+          // totals by time
           if (time === "2pm") {
             total2pm += amount;
           } else if (time === "5pm") total5pm += amount;
           else if (time === "9pm") total9pm += amount;
+
+          // totals by game
+          bet.bets.forEach((b) => {
+            if (b.game === "lasto") {
+              lastoTotal += b.amount;
+            } else if (b.game === "swertres") {
+              swertresTotal += b.amount;
+            } else if (b.game === "pick3") {
+              pickThreeTotal += b.amount;
+            } else if (b.game === "fourD60") {
+              fourDTotal += b.amount;
+            }
+          });
         });
         setTodays2pmTotal(total2pm);
         setTodays5pmTotal(total5pm);
         setTodays9pmTotal(total9pm);
+
+        setEachStationLastoTotal(lastoTotal);
+        setEachStationSwertresTotal(swertresTotal);
+        setEachStationPickThreeTotal(pickThreeTotal);
+        setEachStationFourD60Total(fourDTotal);
 
         // Calculate total for today's bets
         const totalAmount = filteredBets.reduce(
@@ -94,6 +123,10 @@ function StationDetails() {
               twoPmTotal={todays2pmTotal}
               fivePmTotal={todays5pmTotal}
               ninePmTotal={todays9pmTotal}
+              lastoTotal={eachStationLastoTotal}
+              swertresTotal={eachStationSwertresTotal}
+              pickThreeTotal={eachStationPickThreeTotal}
+              fourD60Total={eachStationFourD60Total}
               showBreakdown={true}
               selectedDate={selectedDate}
             />

@@ -120,54 +120,67 @@ function BulletinBoard({
         </tr>
       </tbody>
 
-      <p>
-        2pm Total:{" "}
-        <strong className="text-success">
-          ₱{formatCommaNumber(twoPmTotal)}
-        </strong>
-      </p>
-      <p>
-        5pm Total:{" "}
-        <strong className="text-success">
-          ₱{formatCommaNumber(fivePmTotal)}
-        </strong>
-      </p>
-      <p>
-        9pm Total:{" "}
-        <strong className="text-success">
-          ₱{formatCommaNumber(ninePmTotal)}
-        </strong>
-      </p>
-      <p>
-        Lasto Total:{" "}
-        <strong className="text-success">
-          ₱{formatCommaNumber(lastoTotal)}
-        </strong>
-      </p>
-      <p>
-        Swertres Total:{" "}
-        <strong className="text-success">
-          ₱{formatCommaNumber(swertresTotal)}
-        </strong>
-      </p>
-      <p>
-        Pick3 Total:{" "}
-        <strong className="text-success">
-          ₱{formatCommaNumber(pickThreeTotal)}
-        </strong>
-      </p>
-      <p>
-        4D60 Total:{" "}
-        <strong className="text-success">
-          ₱{formatCommaNumber(fourD60Total)}
-        </strong>
-      </p>
-      <p>
-        Total:{" "}
-        <strong className="text-success">
-          ₱{formatCommaNumber(overAllTotal)}
-        </strong>
-      </p>
+      <div className="row">
+        {/* Left side: by time */}
+        <div className="col-md-6">
+          <p>
+            2pm Total:{" "}
+            <strong className="text-success">
+              ₱{formatCommaNumber(twoPmTotal)}
+            </strong>
+          </p>
+          <p>
+            5pm Total:{" "}
+            <strong className="text-success">
+              ₱{formatCommaNumber(fivePmTotal)}
+            </strong>
+          </p>
+          <p>
+            9pm Total:{" "}
+            <strong className="text-success">
+              ₱{formatCommaNumber(ninePmTotal)}
+            </strong>
+          </p>
+        </div>
+
+        {/* Right side: by game type */}
+        <div className="col-md-6">
+          <p>
+            Lasto Total:{" "}
+            <strong className="text-success">
+              ₱{formatCommaNumber(lastoTotal)}
+            </strong>
+          </p>
+          <p>
+            Swertres Total:{" "}
+            <strong className="text-success">
+              ₱{formatCommaNumber(swertresTotal)}
+            </strong>
+          </p>
+          <p>
+            Pick3 Total:{" "}
+            <strong className="text-success">
+              ₱{formatCommaNumber(pickThreeTotal)}
+            </strong>
+          </p>
+          <p>
+            4D60 Total:{" "}
+            <strong className="text-success">
+              ₱{formatCommaNumber(fourD60Total)}
+            </strong>
+          </p>
+        </div>
+      </div>
+
+      {/* Bottom overall total */}
+      <div className="mt-3 text-center">
+        <p>
+          Total:{" "}
+          <strong className="text-success">
+            ₱{formatCommaNumber(overAllTotal)}
+          </strong>
+        </p>
+      </div>
     </table>
   );
 }

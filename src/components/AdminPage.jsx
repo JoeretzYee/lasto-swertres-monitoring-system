@@ -112,7 +112,7 @@ function AdminPage({ user }) {
             if (b.game === "lasto") lastoTotal += b.amount;
             else if (b.game === "swertres") swertresTotal += b.amount;
             else if (b.game === "pick3") pickThreeTotal += b.amount;
-            else if (b.game === "4d60") fourD60Total += b.amount;
+            else if (b.game === "fourD60") fourD60Total += b.amount;
           });
         });
 
