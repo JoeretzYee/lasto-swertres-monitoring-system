@@ -4,6 +4,7 @@ import { collection, db, onSnapshot } from "../firebase";
 function ViewBetNumbersModal({ isOpen, onClose, selectedDate }) {
   const [groupedBets, setGroupedBets] = useState({});
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(""); // 🔹 search state
 
   useEffect(() => {
     if (!isOpen) return;
@@ -54,6 +55,20 @@ function ViewBetNumbersModal({ isOpen, onClose, selectedDate }) {
 
   if (!isOpen) return null;
 
+  // 🔹 Collect all unique numbers
+  const allNumbers = [
+    ...new Set(
+      Object.values(groupedBets)
+        .map((obj) => Object.keys(obj))
+        .flat()
+    ),
+  ];
+
+  // 🔹 Apply filter
+  const filteredNumbers = allNumbers.filter((num) =>
+    num.toString().includes(searchTerm)
+  );
+
   return (
     <div
       className="modal show d-block"
@@ -67,7 +82,10 @@ function ViewBetNumbersModal({ isOpen, onClose, selectedDate }) {
         role="document"
         style={{ maxWidth: "100%", margin: 0 }}
       >
-        <div className="modal-content" style={{ height: "calc(100vh - 100px)" }}>
+        <div
+          className="modal-content"
+          style={{ height: "calc(100vh - 100px)" }}
+        >
           <div className="modal-header">
             <h5 className="modal-title">Bet Numbers ({selectedDate})</h5>
             <button
@@ -78,6 +96,17 @@ function ViewBetNumbersModal({ isOpen, onClose, selectedDate }) {
             >
               <span aria-hidden="true">&times;</span>
             </button>
+          </div>
+
+          {/* 🔹 Search Input */}
+          <div className="px-3 pt-2">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by number..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
           <div className="modal-body">
@@ -95,13 +124,7 @@ function ViewBetNumbersModal({ isOpen, onClose, selectedDate }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    ...new Set(
-                      Object.values(groupedBets)
-                        .map((obj) => Object.keys(obj))
-                        .flat()
-                    ),
-                  ].map((number) => (
+                  {filteredNumbers.map((number) => (
                     <tr key={number}>
                       <td>{number}</td>
                       <td>{groupedBets.lasto?.[number] || 0}</td>
