@@ -13,15 +13,19 @@ import Swal from "sweetalert2";
 function AddLoadModal({ isOpen, onClose }) {
   const [lastoNumbers, setLastoNumbers] = useState("");
   const [lastoAmount, setLastoAmount] = useState("");
+  const [lastoAllAmount, setLastoAllAmount] = useState("");
 
   const [swertresNumbers, setSwertresNumbers] = useState("");
   const [swertresAmount, setSwertresAmount] = useState("");
+  const [swertresAllAmount, setSwertresAllAmount] = useState("");
 
   const [pick3Numbers, setPick3Numbers] = useState("");
   const [pick3Amount, setPick3Amount] = useState("");
+  const [pick3AllAmount, setPick3AllAmount] = useState("");
 
   const [fourDNumbers, setFourDNumbers] = useState("");
   const [fourDAmount, setFourDAmount] = useState("");
+  const [fourdAllAmount, setFourDAllAmount] = useState("");
 
   const [controlNumbers, setControlNumbers] = useState("");
   const [controlAmount, setControlAmount] = useState("");
@@ -46,15 +50,21 @@ function AddLoadModal({ isOpen, onClose }) {
           // Load existing values into state
           setLastoNumbers(data.lasto?.numbers?.join(", ") || "");
           setLastoAmount(data.lasto?.amount?.toString() || "");
+          setLastoAllAmount(data.lasto?.allNumbersAmount?.toString() || "");
 
           setSwertresNumbers(data.swertres?.numbers?.join(", ") || "");
           setSwertresAmount(data.swertres?.amount?.toString() || "");
+          setSwertresAllAmount(
+            data.swertres?.allNumbersAmount?.toString() || ""
+          );
 
           setPick3Numbers(data.pick3?.numbers?.join(", ") || "");
           setPick3Amount(data.pick3?.amount?.toString() || "");
+          setPick3AllAmount(data.pick3?.allNumbersAmount?.toString() || "");
 
           setFourDNumbers(data.fourD60?.numbers?.join(", ") || "");
           setFourDAmount(data.fourD60?.amount?.toString() || "");
+          setFourDAllAmount(data.fourD60?.allNumbersAmount?.toString() || "");
 
           setControlNumbers(data.controlNumbers?.numbers?.join(", ") || "");
           setControlAmount(data.controlNumbers?.amount?.toString() || "");
@@ -82,18 +92,22 @@ function AddLoadModal({ isOpen, onClose }) {
       lasto: {
         numbers: parseNumbers(lastoNumbers),
         amount: parseInt(lastoAmount, 10) || 0,
+        allNumbersAmount: parseInt(lastoAllAmount, 10) || 0,
       },
       swertres: {
         numbers: parseNumbers(swertresNumbers),
         amount: parseInt(swertresAmount, 10) || 0,
+        allNumbersAmount: parseInt(swertresAllAmount, 10) || 0,
       },
       pick3: {
         numbers: parseNumbers(pick3Numbers),
         amount: parseInt(pick3Amount, 10) || 0,
+        allNumbersAmount: parseInt(pick3AllAmount, 10) || 0,
       },
       fourD60: {
         numbers: parseNumbers(fourDNumbers),
         amount: parseInt(fourDAmount, 10) || 0,
+        allNumbersAmount: parseInt(fourdAllAmount, 10) || 0,
       },
       ...(controlNumbers.trim() && {
         controlNumbers: {
@@ -146,10 +160,20 @@ function AddLoadModal({ isOpen, onClose }) {
                 />
                 <input
                   type="number"
-                  className="form-control"
+                  className="form-control mb-2"
                   placeholder="Amount"
                   value={lastoAmount}
                   onChange={(e) => setLastoAmount(e.target.value)}
+                />
+                <label htmlFor="lastoAllAmount" className="form-label">
+                  Load For All Lasto Number
+                </label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Amount for ALL numbers"
+                  value={lastoAllAmount}
+                  onChange={(e) => setLastoAllAmount(e.target.value)}
                 />
               </div>
 
@@ -165,10 +189,20 @@ function AddLoadModal({ isOpen, onClose }) {
                 />
                 <input
                   type="number"
-                  className="form-control"
+                  className="form-control mb-2"
                   placeholder="Amount"
                   value={swertresAmount}
                   onChange={(e) => setSwertresAmount(e.target.value)}
+                />
+                <label htmlFor="lastoAllAmount" className="form-label">
+                  Load For All Swertres Number
+                </label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholders="Amount for All Swertres Numbers"
+                  value={swertresAllAmount}
+                  onChange={(e) => setSwertresAllAmount(e.target.value)}
                 />
               </div>
 
@@ -184,10 +218,20 @@ function AddLoadModal({ isOpen, onClose }) {
                 />
                 <input
                   type="number"
-                  className="form-control"
+                  className="form-control mb-2"
                   placeholder="Amount"
                   value={pick3Amount}
                   onChange={(e) => setPick3Amount(e.target.value)}
+                />
+                <label htmlFor="lastoAllAmount" className="form-label">
+                  Load For All Pick3 Number
+                </label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Amount for All Pick3 numbers"
+                  value={pick3AllAmount}
+                  onChange={(e) => setPick3AllAmount(e.target.value)}
                 />
               </div>
 
@@ -203,18 +247,26 @@ function AddLoadModal({ isOpen, onClose }) {
                 />
                 <input
                   type="number"
-                  className="form-control"
+                  className="form-control mb-2"
                   placeholder="Amount"
                   value={fourDAmount}
                   onChange={(e) => setFourDAmount(e.target.value)}
+                />
+                <label htmlFor="lastoAllAmount" className="form-label">
+                  Load For All 4D Number
+                </label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Amount for All 4D numbers"
+                  value={fourdAllAmount}
+                  onChange={(e) => setFourDAllAmount(e.target.value)}
                 />
               </div>
 
               {/* Control Numbers */}
               <div className="mb-3">
-                <label className="form-label">
-                  Control Numbers (abrupt)
-                </label>
+                <label className="form-label">Control Numbers (abrupt)</label>
                 <input
                   type="text"
                   className="form-control mb-2"

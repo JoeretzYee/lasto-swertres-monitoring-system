@@ -131,12 +131,31 @@ const UserForm = ({ userData, isOpen, onClose }) => {
       }
 
       // ✅ Check game-specific limits
+      // const gameData = loadControlData?.[game];
+      // if (gameData) {
+      //   const isGameControlled = gameData.numbers?.includes(parsedNumber);
+      //   if (isGameControlled) {
+      //     const maxBetAmount = gameData.amount;
+      //     if (parseFloat(amount) > maxBetAmount) {
+      //       Swal.fire({
+      //         icon: "error",
+      //         title: "Bet Limit Exceeded",
+      //         text: `The maximum bet for ${game} number ${number} is ${maxBetAmount}.`,
+      //       });
+      //       return;
+      //     }
+      //   }
+      // }
+      // ✅ Check game-specific limits
       const gameData = loadControlData?.[game];
       if (gameData) {
+        const betAmount = parseFloat(amount);
+
+        // 1. Specific numbers limit
         const isGameControlled = gameData.numbers?.includes(parsedNumber);
         if (isGameControlled) {
           const maxBetAmount = gameData.amount;
-          if (parseFloat(amount) > maxBetAmount) {
+          if (betAmount > maxBetAmount) {
             Swal.fire({
               icon: "error",
               title: "Bet Limit Exceeded",
@@ -144,6 +163,19 @@ const UserForm = ({ userData, isOpen, onClose }) => {
             });
             return;
           }
+        }
+
+        // 2. All numbers limit (applies to any number in this game)
+        if (
+          gameData.allNumbersAmount &&
+          betAmount > gameData.allNumbersAmount
+        ) {
+          Swal.fire({
+            icon: "error",
+            title: "Bet Limit Exceeded",
+            text: `The maximum bet for ALL numbers in ${gameLabels[game]} is ${gameData.allNumbersAmount}.`,
+          });
+          return;
         }
       }
 
@@ -265,7 +297,7 @@ const UserForm = ({ userData, isOpen, onClose }) => {
 
   return (
     <div className="modal fade show" style={{ display: "block" }}>
-      <div className="modal-dialog" style={{ maxWidth: "60%" }}>
+      <div className="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">Add Bet</h5>

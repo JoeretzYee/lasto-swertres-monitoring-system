@@ -153,7 +153,7 @@ function UserPage({ user, userData }) {
   return (
     <div className="container-fluid d-flex flex-column align-items-start justify-content-start py-3 text-black">
       {/* container up */}
-      <div className="container-fluid d-flex align-items-center justify-content-between">
+      <div className="container-fluid d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2">
         <small className="bg-white text-dark p-2">{userData.email}</small>
         <div>
           <button
@@ -305,7 +305,7 @@ function UserPage({ user, userData }) {
         <div className="container mt-4">
           <h2>Bets Today</h2>
           {filteredBets.length > 0 ? (
-            <table className="table table-bordered">
+            <table className="table table-bordered table-responsive">
               <thead>
                 <tr>
                   <th>Reference No</th>

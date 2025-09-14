@@ -18,7 +18,6 @@ import StationCard from "./StationCard";
 import BulletinBoard from "./BulletinBoard";
 import getTodaysDate from "../utils/getTodaysDate";
 
-
 function AdminPage({ user }) {
   const todaysDate = getTodaysDate();
 
@@ -41,7 +40,8 @@ function AdminPage({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isViewBetsNumbersTotalModalOpen,setIsViewBetsNumbersTotalModalOpen] = useState(false);
+  const [isViewBetsNumbersTotalModalOpen, setIsViewBetsNumbersTotalModalOpen] =
+    useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State to control delete user modal
   const [isAddResultModalOpen, setIsAddResultModalOpen] = useState(false);
   const [isAddLoadModalOpen, setIsAddLoadModalOpen] = useState(false);
@@ -176,25 +176,25 @@ function AdminPage({ user }) {
       {/* container up */}
       <div className="container-fluid d-flex align-items-center justify-content-between flex-wrap">
         <div className="container-flui d-flex align-items-center justify-content-between flex-wrap">
-  {/* Left - email */}
-        <small>{user.email}</small>
+          {/* Left - email */}
+          <small>{user.email}</small>
 
-        {/* Center - date input */}
-        <input
-          type="date"
-          className="form-control w-50 mx-2"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-        />
+          {/* Center - date input */}
+          <input
+            type="date"
+            className="form-control w-50 mx-2"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
         </div>
-      
+
         <br />
         {/* Right - button groups */}
         <div className="d-flex justify-content-between flex-grow-1 mt-2 mt-sm-0">
           {/* Left button group */}
           <div>
             <button
-              className="btn btn-md btn-primary"
+              className="btn btn-md btn-primary mb-2 mb-sm-0"
               onClick={handleOpenAddResultModal}
             >
               Add Result for Today
@@ -208,7 +208,7 @@ function AdminPage({ user }) {
             )}
             &nbsp;
             <button
-              className="btn btn-md btn-primary"
+              className="btn btn-md btn-primary mb-2 mb-sm-0"
               onClick={handleOpenAddLoadModal}
             >
               Add Load
@@ -221,21 +221,23 @@ function AdminPage({ user }) {
               />
             )}
             &nbsp;
-            <button className="btn btn-md btn-primary" onClick={() => setIsViewBetsNumbersTotalModalOpen(true)}>
+            <button
+              className="btn btn-md btn-primary mb-2 mb-sm-0"
+              onClick={() => setIsViewBetsNumbersTotalModalOpen(true)}
+            >
               View Total Bet Numbers
             </button>
             {isViewBetsNumbersTotalModalOpen && (
-  <ViewBetsNumbersTotalModal
-    isOpen={isViewBetsNumbersTotalModalOpen}
-    onClose={() => setIsViewBetsNumbersTotalModalOpen(false)}
-    selectedDate={selectedDate}
-  />
-)}
-
+              <ViewBetsNumbersTotalModal
+                isOpen={isViewBetsNumbersTotalModalOpen}
+                onClose={() => setIsViewBetsNumbersTotalModalOpen(false)}
+                selectedDate={selectedDate}
+              />
+            )}
             &nbsp;
             <button
               onClick={() => setIsModalOpen(true)}
-              className="btn btn-md btn-primary"
+              className="btn btn-md btn-primary mb-2 mb-sm-0"
             >
               Create User
             </button>
@@ -245,11 +247,14 @@ function AdminPage({ user }) {
           <div className="ms-auto">
             <button
               onClick={() => setIsDeleteModalOpen(true)}
-              className="btn btn-md btn-danger me-2"
+              className="btn btn-md btn-danger me-2 mb-2 mb-sm-0"
             >
               Delete User
             </button>
-            <button className="btn btn-md btn-dark" onClick={logout}>
+            <button
+              className="btn btn-md btn-dark mb-2 mb-sm-0"
+              onClick={logout}
+            >
               Logout
             </button>
           </div>
