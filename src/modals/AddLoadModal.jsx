@@ -213,7 +213,7 @@ function AddLoadModal({ isOpen, onClose }) {
               {/* Control Numbers */}
               <div className="mb-3">
                 <label className="form-label">
-                  Control Numbers (all games)
+                  Control Numbers (abrupt)
                 </label>
                 <input
                   type="text"
